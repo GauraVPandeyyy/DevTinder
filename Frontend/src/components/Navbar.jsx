@@ -15,13 +15,14 @@ import {
   LogOutIcon,
 } from "lucide-react";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 export default function Navbar() {
   const user = useSelector(state => state.user)
   return (
     <nav>
       <div className="flex justify-between p-2 fixed top-0 w-full">
         {/* Logo */}
-        <h1 className="text-xl font-bold text-pink-600">DevTinder</h1>
+        <Link to='/' className="text-xl font-bold text-pink-600">DevTinder</Link>
 
         {/* Navigation */}
         <div className="flex gap-4 items-center">
@@ -44,7 +45,9 @@ export default function Navbar() {
                 <DropdownMenuGroup>
                   <DropdownMenuItem>
                     <BadgeCheckIcon />
-                    Account
+                    <Link to="/profile">
+                    Profile
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <BellIcon />

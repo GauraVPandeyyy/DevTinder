@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import api from "@/services/api";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/store/userSlice";
 import { useNavigate } from "react-router-dom";
 const Login = () => {
@@ -20,7 +20,11 @@ const Login = () => {
   const [password, setPassword] = useState("Gaurav@123");
   const dispatch = useDispatch();
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const user = useSelector((state) => state.user);
+  if (user) {
+    navigate(-1);
+  }
   const loginHander = async (e) => {
     e.preventDefault();
 
@@ -30,7 +34,7 @@ const Login = () => {
         password,
       });
       dispatch(setUser(res.data.user));
-      navigate("/")
+      navigate("/");
     } catch (error) {
       console.error(error.message);
     }
@@ -50,7 +54,7 @@ const Login = () => {
           <form>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email {email}</Label>
+                <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
