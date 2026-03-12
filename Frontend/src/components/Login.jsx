@@ -14,10 +14,13 @@ import { useState } from "react";
 import api from "@/services/api";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/userSlice";
+import { useNavigate } from "react-router-dom";
 const Login = () => {
-  const [email, setEmail] = useState("elon@gmail.com");
-  const [password, setPassword] = useState("Elon@123");
-const dispatch = useDispatch()
+  const [email, setEmail] = useState("gaurav@gmail.com");
+  const [password, setPassword] = useState("Gaurav@123");
+  const dispatch = useDispatch();
+
+  const navigate = useNavigate()
   const loginHander = async (e) => {
     e.preventDefault();
 
@@ -27,7 +30,7 @@ const dispatch = useDispatch()
         password,
       });
       dispatch(setUser(res.data.user));
-      console.log(res.data);
+      navigate("/")
     } catch (error) {
       console.error(error.message);
     }
