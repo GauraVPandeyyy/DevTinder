@@ -18,13 +18,12 @@ import { useNavigate } from "react-router-dom";
 const Login = () => {
   const [email, setEmail] = useState("gaurav@gmail.com");
   const [password, setPassword] = useState("Gaurav@123");
+  const [error, setError] = useState("");
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
-  if (user) {
-    navigate(-1);
-  }
+  
   const loginHander = async (e) => {
     e.preventDefault();
 
@@ -36,7 +35,7 @@ const Login = () => {
       dispatch(setUser(res.data.user));
       navigate("/");
     } catch (error) {
-      console.error(error.message);
+      setError(error.response?.data?.message || "Login failed");
     }
   };
 
@@ -82,6 +81,7 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
+          <p className="text-sm text-red-500">{error}</p>
             </div>
           </form>
         </CardContent>

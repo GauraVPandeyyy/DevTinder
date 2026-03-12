@@ -94,7 +94,7 @@ authRouter.post("/login", loginValidation, async (req, res) => {
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: `failed- ${error.message}`,
+      message: error.message,
     });
   }
 });

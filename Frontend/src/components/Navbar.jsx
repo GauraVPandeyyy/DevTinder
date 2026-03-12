@@ -14,15 +14,29 @@ import {
   CreditCardIcon,
   LogOutIcon,
 } from "lucide-react";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import api from "@/services/api";
+import { removeUser } from "@/store/userSlice";
+
+
 export default function Navbar() {
-  const user = useSelector(state => state.user)
+  const navigate = useNavigate();
+  const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const logOutHandler = async () => {
+    await api.post("/logout");
+    dispatch(removeUser());
+    navigate("/login");
+  };
+
   return (
     <nav>
       <div className="flex justify-between p-2 fixed top-0 w-full">
         {/* Logo */}
-        <Link to='/' className="text-xl font-bold text-pink-600">DevTinder</Link>
+        <Link to="/" className="text-xl font-bold text-pink-600">
+          DevTinder
+        </Link>
 
         {/* Navigation */}
         <div className="flex gap-4 items-center">
@@ -33,10 +47,7 @@ export default function Navbar() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
                   <Avatar>
-                    <AvatarImage
-                      src={user.photoUrl}
-                      alt="user profile"
-                    />
+                    <AvatarImage src={user.photoUrl} alt="user profile" />
                     <AvatarFallback>LR</AvatarFallback>
                   </Avatar>
                 </Button>
@@ -45,9 +56,7 @@ export default function Navbar() {
                 <DropdownMenuGroup>
                   <DropdownMenuItem>
                     <BadgeCheckIcon />
-                    <Link to="/profile">
-                    Profile
-                    </Link>
+                    <Link to="/profile">Profile</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <BellIcon />
@@ -57,7 +66,7 @@ export default function Navbar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <LogOutIcon />
-                  Sign Out
+                  <span onClick={logOutHandler}>Log Out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
