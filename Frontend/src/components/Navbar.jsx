@@ -40,8 +40,12 @@ export default function Navbar() {
 
         {/* Navigation */}
         <div className="flex gap-4 items-center">
-          <Button variant="ghost">Feed</Button>
-          <Button variant="ghost">Matches</Button>
+          <Link to="/" variant="ghost">
+            Feed
+          </Link>
+          <Link to="/matches" variant="ghost">
+            Matches
+          </Link>
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -64,9 +68,9 @@ export default function Navbar() {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={logOutHandler} className="text-red-500 hover:text-red-600">
                   <LogOutIcon />
-                  <span onClick={logOutHandler}>Log Out</span>
+                  Log Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

@@ -12,7 +12,7 @@ exports.signupValidation = [
   body("password").isStrongPassword().withMessage("Weak password"),
 
   body("age")
-    .optional()
+    .optional({ checkFalsy: true })
     .isInt({ min: 18, max: 100 })
     .withMessage("age must be betweeb 18-100"),
 
@@ -21,26 +21,31 @@ exports.signupValidation = [
 
 exports.profileUpdateValidation = [
   body("firstName")
-    .optional()
     .trim()
     .isLength({ min: 3, max: 50 })
     .withMessage("First name must be 3+ chars and less than 50 characters"),
 
   body("lastName")
-    .optional()
+    .optional({ checkFalsy: true })
     .trim()
     .isLength({ min: 3, max: 50 })
     .withMessage("Last name must be 3+ chars and less than 50 characters"),
 
   body("age")
-    .optional()
+    .optional({ checkFalsy: true })
     .isInt({ min: 18, max: 100 })
     .withMessage("age must be between18-100"),
+    
+    body("gender")
+    .optional({ checkFalsy: true }) // Agar khali string "" hai toh ignore karo
+    .trim()
+    .isIn(["male", "female", "others"]) // Sirf valid values allow karo
+    .withMessage("Gender must be male, female, or others"),
 
-  body("photoUrl").optional().isURL().withMessage("Url is not valid"),
+  body("photoUrl").optional({ checkFalsy: true }).isURL().withMessage("Url is not valid"),
 
   body("skills")
-    .optional()
+    .optional({ checkFalsy: true })
     .isArray({ min: 1, max: 10 })
     .withMessage("NO. of skills should be 10 or less than 10"),
 

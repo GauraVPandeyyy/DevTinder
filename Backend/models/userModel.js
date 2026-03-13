@@ -45,6 +45,7 @@ const userSchema = mongoose.Schema(
     gender: {
       type: String,
       validate(value) {
+        if (value === "" || value === null) return true;
         if (!["male", "female", "others"].includes(value)) {
           throw new Error(
             "Gender Data is not valid! eg:(male , female , others)",
@@ -87,7 +88,7 @@ userSchema.methods.comparePassword = async function (passwordInputByUser) {
 userSchema.methods.getJWT = async function () {
   const user = this;
   const token = await jwt.sign({ id: user._id }, "DevTinder@123", {
-    expiresIn: "1h",
+    expiresIn: "8h",
   });
 
   return token
