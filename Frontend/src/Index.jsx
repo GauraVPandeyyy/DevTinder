@@ -15,7 +15,7 @@ const Index = () => {
     try {
       
       const res = await api.get("/profile/view");
-      console.log(res);
+      // console.log(res);
       dispatach(setUser(res.data.user));
 
     } catch (error) {

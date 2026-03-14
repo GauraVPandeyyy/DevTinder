@@ -20,7 +20,7 @@ export function UserCard({ user }) {
         <img
           src={photoUrl}
           alt="profile photo"
-          className="relative z-20 aspect-video w-full object-cover brightness-60 grayscale dark:brightness-40"
+          className="relative z-20 aspect-video w-full object-cover"
         />
         <CardHeader>
           <CardTitle>{firstName} {" "} {lastName || ""}</CardTitle>

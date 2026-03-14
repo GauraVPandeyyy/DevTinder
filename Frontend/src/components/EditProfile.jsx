@@ -64,7 +64,7 @@ const EditProfile = ({ user }) => {
   };
   return (
     <div className="flex flex-col sm:flex-row justify-center items-start gap-10 p-10">
-      <Card className="">
+      <Card className="max-w-1/2">
         <CardHeader>
           <CardTitle>Edit your Profile</CardTitle>
         </CardHeader>

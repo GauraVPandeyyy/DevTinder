@@ -22,14 +22,14 @@ import { removeUser } from "@/store/userSlice";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const user = useSelector((state) => state.user);
+  const user = useSelector((store) => store.user);
   const dispatch = useDispatch();
   const logOutHandler = async () => {
     await api.post("/logout");
     dispatch(removeUser());
     navigate("/login");
   };
-
+// console.log("navbar", user)
   return (
     <nav>
       <div className="flex justify-between p-2 fixed top-0 w-full">
@@ -40,8 +40,8 @@ export default function Navbar() {
 
         {/* Navigation */}
         <div className="flex gap-4 items-center">
-          <Link to="/" variant="ghost">
-            Feed
+          <Link to="/connections" variant="ghost">
+            Connections
           </Link>
           <Link to="/matches" variant="ghost">
             Matches
