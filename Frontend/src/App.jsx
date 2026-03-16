@@ -7,6 +7,8 @@ import store from "./store/store";
 import Feed from "./components/Feed";
 import { Toaster } from "react-hot-toast";
 import { Connections } from "./components/Connections";
+import { ConnectionRequest } from "./components/ConnectionRequest";
+import Signup from "./components/Signup";
 const App = () => {
   return (
     <Provider store={store}>
@@ -15,9 +17,11 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Index />}>
             <Route path="/" element={<Feed />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/connections" element={<Connections />} />
+            <Route path="/requests" element={<ConnectionRequest />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -4,6 +4,9 @@ const { body } = require("express-validator");
 exports.signupValidation = [
   body("firstName")
     .trim()
+    .exists()
+    .optional({checkFalsy: false})
+    .withMessage("First Name is Required")
     .isLength({ min: 3 })
     .withMessage("First name must be 3+ chars"),
 
@@ -35,14 +38,17 @@ exports.profileUpdateValidation = [
     .optional({ checkFalsy: true })
     .isInt({ min: 18, max: 100 })
     .withMessage("age must be between18-100"),
-    
-    body("gender")
+
+  body("gender")
     .optional({ checkFalsy: true }) // Agar khali string "" hai toh ignore karo
     .trim()
     .isIn(["male", "female", "others"]) // Sirf valid values allow karo
     .withMessage("Gender must be male, female, or others"),
 
-  body("photoUrl").optional({ checkFalsy: true }).isURL().withMessage("Url is not valid"),
+  body("photoUrl")
+    .optional({ checkFalsy: true })
+    .isURL()
+    .withMessage("Url is not valid"),
 
   body("skills")
     .optional({ checkFalsy: true })
@@ -57,7 +63,10 @@ exports.profileUpdateValidation = [
     .withMessage("Each skill must be a valid string"),
 ];
 
-
 exports.passwordValidation = [
-  body("password").exists().withMessage("Password is Required").isStrongPassword().withMessage("Please Enter a Strong password")
-]
+  body("password")
+    .exists()
+    .withMessage("Password is Required")
+    .isStrongPassword()
+    .withMessage("Please Enter a Strong password"),
+];

@@ -32,7 +32,10 @@ authRouter.post("/signup", signupValidation, async (req, res) => {
       errors: errors.array(),
     });
   }
-
+  const user = await User.findOne({ email });
+  if (user) {
+    throw new Error("This email Already Exist");
+  }
   const hashPassword = await bcrypt.hash(password, 10);
 
   try {
@@ -46,6 +49,12 @@ authRouter.post("/signup", signupValidation, async (req, res) => {
       skills,
       gender,
       about,
+    });
+
+    const token = await data.getJWT();
+
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 8 * 3600000), // cookie will be removed after 8 hours
     });
 
     return res.status(201).json({

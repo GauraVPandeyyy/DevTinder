@@ -14,28 +14,36 @@ import { useState } from "react";
 import api from "@/services/api";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/store/userSlice";
-import { Link, useNavigate } from "react-router-dom";
-const Login = () => {
+import { useNavigate } from "react-router-dom";
+const Signup = () => {
   const [email, setEmail] = useState("gaurav@gmail.com");
   const [password, setPassword] = useState("Gaurav@123");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+
   const [error, setError] = useState("");
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
-  
-  const loginHander = async (e) => {
+
+  const SignupHander = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await api.post("/login", {
+      const res = await api.post("/signup", {
         email,
         password,
+        firstName,
+        lastName,
       });
       dispatch(setUser(res.data.user));
-      navigate("/");
+      navigate("/profile");
     } catch (error) {
-      setError(error.response?.data?.message || "Login failed");
+      const errData = error?.response?.data;
+      setError(
+        errData?.message || errData?.errors?.[0]?.msg || "something went wrong",
+      );
     }
   };
 
@@ -43,17 +51,36 @@ const Login = () => {
     <div className="w-full h-full flex justify-center items-center">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
+          <CardTitle>Create a new Account</CardTitle>
           {/* <CardDescript     */}
           <CardAction>
-            <Link to="/signup" variant="link">
-              Don't have an account? Sign Up
-            </Link>
+            <Button variant="link">Sign Up</Button>
           </CardAction>
         </CardHeader>
         <CardContent>
           <form>
             <div className="flex flex-col gap-6">
+              <div className="grid gap-2">
+                <Label htmlFor="email">First Name</Label>
+                <Input
+                  id="firstName"
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="Tony"
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input
+                  id="lastName"
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Stark"
+                />
+              </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -68,12 +95,6 @@ const Login = () => {
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
                 </div>
                 <Input
                   id="password"
@@ -83,17 +104,17 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-          <p className="text-sm text-red-500">{error}</p>
+            { error && <p className="text-sm text-red-500">{error}</p>}
             </div>
           </form>
         </CardContent>
         <CardFooter className="flex-col gap-2">
           <Button
             type="submit"
-            onClick={loginHander}
+            onClick={SignupHander}
             className="w-full cursor-pointer"
           >
-            Login
+            Sign Up
           </Button>
         </CardFooter>
       </Card>
@@ -101,4 +122,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;

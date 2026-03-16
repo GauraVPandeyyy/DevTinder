@@ -43,9 +43,9 @@ export default function Navbar() {
           <Link to="/connections" variant="ghost">
             Connections
           </Link>
-          <Link to="/matches" variant="ghost">
+          {/* <Link to="/matches" variant="ghost">
             Matches
-          </Link>
+          </Link> */}
           {user && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -64,7 +64,7 @@ export default function Navbar() {
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <BellIcon />
-                    Notifications
+                    <Link to="/requests">Request</Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />

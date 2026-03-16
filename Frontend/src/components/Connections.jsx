@@ -16,14 +16,19 @@ export const Connections = () => {
   useEffect(() => {
     fetchConnections();
   }, []);
+
+  if (connections && connections.length == 0) {
+    return <p className="mx-auto pt-20">NO Connections</p>;
+  }
   return <div className="flex flex-col  justify-center items-center mt-10 gap-10">
     {connections &&  connections.map((connection)=> {
+      const{firstName , lastName, age, gender , about , photoUrl} = connection
         return <div key={connection._id} className="flex items-center w-1/2 bg-gray-700 gap-4 p-3 rounded-2xl">
-            <img src={connection.photoUrl} className="w-16 h-16 rounded-full object-cover" alt="photo" />
+            <img src={photoUrl} className="w-16 h-16 rounded-full object-cover" alt="photo" />
             <div>
-                <h2>{connection.firstName} {" "} {connection.lastName ? connection.lastName : ""}</h2>
-                <p>{connection.age && connection.gender ? connection.age + ", "+ connection.gender : "" }</p>
-                <p>{connection.about}</p>
+                <h2>{firstName} {" "} {lastName ? lastName : ""}</h2>
+                <p>{age && gender ? age + ", "+ gender : "" }</p>
+                <p>{about}</p>
             </div>
         </div>
     }    )}
