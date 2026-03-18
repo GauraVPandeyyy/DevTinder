@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { UserCard } from "./userCard";
+import { UserCard } from "./UserCard";
 import api from "@/services/api";
 import toast from "react-hot-toast";
 import { addFeed, removeFeed } from "@/store/feedSlice";
