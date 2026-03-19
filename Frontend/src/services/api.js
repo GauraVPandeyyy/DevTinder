@@ -2,7 +2,7 @@ import axios from "axios"
 import toast from "react-hot-toast";
 
 const api = axios.create({
-  baseURL: "http://13.60.25.71/api",
+  baseURL: "/api",
   withCredentials: true
 })
 

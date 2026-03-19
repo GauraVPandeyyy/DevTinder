@@ -23,10 +23,10 @@ ConnectDB();
 app.use(express.json());
 app.use(cookiesParser());
 
-app.use("/api", authRouter);
-app.use("/api", profileRouter);
-app.use("/api", connectionReqRoute);
-app.use("/api", userRouter);
+app.use("/", authRouter);
+app.use("/", profileRouter);
+app.use("/", connectionReqRoute);
+app.use("/", userRouter);
 
 app.listen(process.env.PORT, () => {
   console.log("Server is listening @ PORT", process.env.PORT);
