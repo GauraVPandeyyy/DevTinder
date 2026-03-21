@@ -53,7 +53,7 @@ connectionReqRoute.post(
       });
 
       const data = await connectionRequest.save();
-
+      sendEmail();
       return res.status(201).json({
         message:
           status == "interested"
@@ -99,9 +99,6 @@ connectionReqRoute.post(
 
       requestData.status = status;
       const data = await requestData.save();
-
-
-      sendEmail(toUserEmail);
 
       return res.status(200).json({
         message: `${loggedInUser.firstName} ${status} the request`,
