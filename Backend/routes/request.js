@@ -53,7 +53,8 @@ connectionReqRoute.post(
       });
 
       const data = await connectionRequest.save();
-      sendEmail();
+      const response = await sendEmail();
+      console.log("Email sent:", response);
       return res.status(201).json({
         message:
           status == "interested"

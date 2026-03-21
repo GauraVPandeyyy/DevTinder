@@ -3,9 +3,9 @@ const sesClient = require("./sesClient");
 
 const sendEmail = async () => {
   const params = {
-    Source: "gauravp@gmail.com",
+    Source: "gauravp9118@gmail.com",
     Destination: {
-      ToAddresses: ["gauravp@gmail.com"],
+      ToAddresses: ["gauravp9118@gmail.com"],
     },
     Message: {
       Subject: {
