@@ -1,5 +1,6 @@
-const express = require("express");
 const dotenv = require("dotenv");
+dotenv.config();
+const express = require("express");
 const app = express();
 const ConnectDB = require("./config/db");
 // const mongoSanitize = require("express-mongo-sanitize");
@@ -18,7 +19,7 @@ app.use(
   }),
 );
 // app.use(mongoSanitize());
-dotenv.config();
+
 ConnectDB();
 app.use(express.json());
 app.use(cookiesParser());
