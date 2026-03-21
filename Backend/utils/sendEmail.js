@@ -22,11 +22,13 @@ const sendEmail = async () => {
   const command = new SendEmailCommand(params);
 
   try {
-    const response = await sesClient.send(command);
-    console.log("Email sent:", response);
-  } catch (error) {
-    console.error("Error sending email:", error);
-  }
+  const response = await sesClient.send(command);
+  console.log("Email sent:", response);
+  return response; // ✅ ADD THIS
+} catch (error) {
+  console.error("Error sending email:", error);
+  throw error; // ✅ IMPORTANT
+}
 };
 
 module.exports = sendEmail;
