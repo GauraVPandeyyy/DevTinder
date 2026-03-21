@@ -3,6 +3,7 @@ const User = require("../models/userModel");
 const userAuth = require("../middleware/userAuth");
 const ConnectionRequest = require("../models/connectionRequest");
 const mongoose = require("mongoose");
+const sendEmail = require("../utlis/sendEmail");
 
 const connectionReqRoute = express.Router();
 
