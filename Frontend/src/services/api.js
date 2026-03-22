@@ -2,7 +2,8 @@ import axios from "axios"
 import toast from "react-hot-toast";
 
 const api = axios.create({
-  baseURL: "/api",
+  // baseURL: "/api",
+  baseURL: location.hostname === "localhost" ? "http://localhost:5000" : "/api",
   withCredentials: true
 })
 

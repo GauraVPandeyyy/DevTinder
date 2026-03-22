@@ -3,6 +3,8 @@ dotenv.config();
 const express = require("express");
 const app = express();
 const ConnectDB = require("./config/db");
+
+require("./utils/cronJob");
 // const mongoSanitize = require("express-mongo-sanitize");
 
 const cookiesParser = require("cookie-parser");

@@ -3,7 +3,7 @@ const sesClient = require("./sesClient");
 
 const sendEmail = async () => {
   const params = {
-    Source: "gauravp9118@gmail.com",
+    Source: "noreply@devtinder.openlancer.in",
     Destination: {
       ToAddresses: ["gauravp9118@gmail.com"],
     },
