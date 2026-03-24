@@ -9,6 +9,7 @@ import { Toaster } from "react-hot-toast";
 import { Connections } from "./components/Connections";
 import { ConnectionRequest } from "./components/ConnectionRequest";
 import Signup from "./components/Signup";
+import Premium from "./components/premium";
 const App = () => {
   return (
     <Provider store={store}>
@@ -22,6 +23,7 @@ const App = () => {
             <Route path="/profile" element={<Profile />} />
             <Route path="/connections" element={<Connections />} />
             <Route path="/requests" element={<ConnectionRequest />} />
+            <Route path="/premium" element={<Premium />} />
           </Route>
         </Routes>
       </BrowserRouter>

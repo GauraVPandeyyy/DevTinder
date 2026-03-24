@@ -12,6 +12,7 @@ const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const connectionReqRoute = require("./routes/request");
 const userRouter = require("./routes/user");
+const paymentRouter = require("./routes/payment");
 const cors = require("cors");
 
 app.use(
@@ -30,6 +31,7 @@ app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", connectionReqRoute);
 app.use("/", userRouter);
+app.use("/", paymentRouter);
 
 app.listen(process.env.PORT, () => {
   console.log("Server is listening @ PORT", process.env.PORT);

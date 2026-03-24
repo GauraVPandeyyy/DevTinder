@@ -66,6 +66,10 @@ export default function Navbar() {
                     <BellIcon />
                     <Link to="/requests">Request</Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <BellIcon />
+                    <Link to="/premium">Premium</Link>
+                  </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logOutHandler} className="text-red-500 hover:text-red-600">

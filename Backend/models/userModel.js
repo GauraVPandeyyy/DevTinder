@@ -14,6 +14,13 @@ const userSchema = mongoose.Schema(
     lastName: {
       type: String,
     },
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
+    membershipType: {
+      type: String
+    },
     email: {
       type: String,
       required: true,
