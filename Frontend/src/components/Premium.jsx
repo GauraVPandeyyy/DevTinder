@@ -1,7 +1,19 @@
 import api from "@/services/api";
-import React from "react";
-
+import React, { useEffect, useState } from "react";
 const Premium = () => {
+  const [isPremium, setIsPremium] = useState(false);
+
+  const checkPremiumStatus = async () => {
+    try {
+      const res = await api.get("/premium/verify");
+      setIsPremium(res.data.isPremium);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  useEffect(() => {
+    checkPremiumStatus();
+  }, []);
   const premiumHandler = async (type) => {
     // Handle premium subscription logic here
     const res = await api.post("/create/order", { membershipType: type });
@@ -19,6 +31,7 @@ const Premium = () => {
         console.log("Payment success:", response);
 
         await api.post("/verify/payment", response);
+        await checkPremiumStatus();
       },
       prefill: {
         name: `${notes.firstName} ${notes.lastName}`,
@@ -32,43 +45,36 @@ const Premium = () => {
     const rzp = window.Razorpay(options);
     rzp.open();
   };
-//   {razorpay_payment_id: 'pay_SV3xukMg7IjAbZ', razorpay_order_id: 'order_SV3xfeZ1WgdTFU', razorpay_signature: 'e2b5b52574078613b255ccd450cc57f1c119fba4647613a1ed34007d702a709c'
+  //   {razorpay_payment_id: 'pay_SV3xukMg7IjAbZ', razorpay_order_id: 'order_SV3xfeZ1WgdTFU', razorpay_signature: 'e2b5b52574078613b255ccd450cc57f1c119fba4647613a1ed34007d702a709c'
   return (
-    <div className="flex justify-between bg-gray-50 gap-10">
-      <div className="border-2">
-        <h1>Premium</h1>
-        <p>Welcome to the premium section!</p>
-        <li>
-          <ul>
-            <li>Premium Feature 1</li>
-            <li>Premium Feature 2</li>
-            <li>Premium Feature 3</li>
-          </ul>
-        </li>
-        <button
-          className="bg-blue-500 text-white"
-          onClick={(e) => premiumHandler("gold")}
-        >
-          Subscribe
-        </button>
-      </div>
-      <div>
-        <h1>Premium</h1>
-        <p>Welcome to the premium section!</p>
-        <li>
-          <ul>
-            <li>Premium Feature 1</li>
-            <li>Premium Feature 2</li>
-            <li>Premium Feature 3</li>
-          </ul>
-        </li>
-        <button
-          className="bg-blue-500 text-white"
-          onClick={(e) => premiumHandler("silver")}
-        >
-          Subscribe
-        </button>
-      </div>
+    <div>
+      {isPremium ? (
+        <h1 className="text-green-600 text-xl text-center mt-10">
+          🎉 You are already a Premium User
+        </h1>
+      ) : (
+        <div className="flex justify-between bg-gray-50 gap-10">
+          <div className="border-2 p-4">
+            <h1>Gold</h1>
+            <button
+              className="bg-blue-500 text-white"
+              onClick={() => premiumHandler("gold")}
+            >
+              Subscribe
+            </button>
+          </div>
+
+          <div className="border-2 p-4">
+            <h1>Silver</h1>
+            <button
+              className="bg-blue-500 text-white"
+              onClick={() => premiumHandler("silver")}
+            >
+              Subscribe
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

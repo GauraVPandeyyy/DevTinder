@@ -5,7 +5,8 @@ const { membershipTypes } = require("../utils/constants");
 const Payment = require("../models/payment");
 const router = express.Router();
 const crypto = require("crypto");
-const User = require("../models/user"); 
+const User = require("../models/userModel");
+
 
 
 router.post("/create/order", userAuth, async (req, res) => {
@@ -135,4 +136,19 @@ console.log("Payment captured webhook received:", paymentDetails);
     res.status(200).send("Webhook processed");
   }
 );
+
+
+router.get("/premium/verify", userAuth, async (req, res) => {
+  try {
+    const user = req.user;
+
+    return res.json({
+      isPremium: user.isPremium,
+      membershipType: user.membershipType,
+    });
+
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching premium status" });
+  }
+});
 module.exports = router;
