@@ -9,7 +9,7 @@ import { Toaster } from "react-hot-toast";
 import { Connections } from "./components/Connections";
 import { ConnectionRequest } from "./components/ConnectionRequest";
 import Signup from "./components/Signup";
-import Premium from "./components/premium";
+import Premium from "./components/Premium";
 const App = () => {
   return (
     <Provider store={store}>
