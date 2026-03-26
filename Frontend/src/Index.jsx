@@ -1,42 +1,21 @@
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { Outlet } from "react-router-dom";
-import api from "@/services/api";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "@/store/userSlice";
-import { useNavigate } from "react-router-dom";
 
 const Index = () => {
-  const navigate = useNavigate();
-  const user = useSelector((state) => state.user);
-  const dispatach = useDispatch();
-  const fetchUser = async () => {
-    try {
-      
-      const res = await api.get("/profile/view");
-      // console.log(res);
-      dispatach(setUser(res.data.user));
-
-    } catch (error) {
-      if(error.status ==401) {
-        navigate("/login")
-      }
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchUser();
-  }, []);
   return (
-    <>
+    <div className="relative flex min-h-screen flex-col bg-background text-foreground selection:bg-primary/30">
       <Navbar />
-      <div className="w-full h-screen my-16">
-        <Outlet />
-      </div>
+      
+      {/* flex-1 ensures the main content pushes the footer down */}
+      <main className="flex-1 w-full flex flex-col items-center">
+        <div className="container max-w-7xl mx-auto px-4 py-8 md:py-12 w-full">
+          <Outlet />
+        </div>
+      </main>
+      
       <Footer />
-    </>
+    </div>
   );
 };
 

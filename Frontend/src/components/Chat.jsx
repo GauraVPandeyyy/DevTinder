@@ -1,26 +1,175 @@
-import React, { use } from 'react'
+import { useState, useRef, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Send, Phone, Video, Info, ArrowLeft } from 'lucide-react';
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card } from "@/components/ui/card";
 
 const Chat = () => {
-    const targetUserId = useParams().targetUserId;
-    const currentUser = useSelector((state) => state.connections.find((conn) => conn._id === targetUserId));
-    if(!currentUser){
-        return <p className='mx-auto pt-20'>User Not Found</p>
+    const { targetUserId } = useParams();
+    const navigate = useNavigate();
+    
+    const currentUser = useSelector((state) => 
+        state.connections?.find((conn) => conn._id === targetUserId)
+    );
+
+    // Dummy state for UI demonstration - replace with real API/Socket logic later
+    const [messages, setMessages] = useState([
+        { id: 1, text: "Hey! Thanks for connecting.", senderId: targetUserId, timestamp: "10:00 AM" },
+        { id: 2, text: "Hi! Nice to meet you. I saw you're working with React as well.", senderId: "me", timestamp: "10:05 AM" },
+        { id: 3, text: "Yeah! I love the ecosystem. Building a new project right now.", senderId: targetUserId, timestamp: "10:06 AM" },
+    ]);
+    const [newMessage, setNewMessage] = useState('');
+    const messagesEndRef = useRef(null);
+
+    // Auto-scroll to bottom when new messages arrive
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
+    const handleSendMessage = (e) => {
+        e.preventDefault();
+        if (!newMessage.trim()) return;
+
+        const newMsgObj = {
+            id: Date.now(),
+            text: newMessage,
+            senderId: "me",
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+
+        setMessages((prev) => [...prev, newMsgObj]);
+        setNewMessage('');
+    };
+
+    if (!currentUser) {
+        return (
+            <div className='flex flex-col items-center justify-center h-[70vh] space-y-4'>
+                <p className='text-xl font-medium text-muted-foreground'>User not found or not connected.</p>
+                <Button onClick={() => navigate('/connections')} variant="outline">
+                    Back to Connections
+                </Button>
+            </div>
+        );
     }
-  return (
-    <div className='min-h-screen bg-gray-900 text-white'>
-      <div>Chat with {currentUser?.firstName} {" "}{currentUser?.lastName}</div>
-      <div>
-        {/* Chat UI goes here */}
-        <div className='flex gap-2 justify-between items-center mt-4 fixed bottom-20 w-full p-4'>
-            <input type="text" placeholder='Enter your Message' className='w-full bg-gray-600 text-white placeholder:text-gray-400 border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500' />
-            <button className='w-fit px-3 py-1 bg-gray-500 hover:bg-gray-600'>Send</button>
-        </div>
-    </div>
-    </div>
 
-  )
-}
+    return (
+        <Card className="flex flex-col w-full max-w-4xl mx-auto h-[80vh] sm:h-[85vh] overflow-hidden border-border/50 shadow-lg relative">
+            
+            {/* Chat Header */}
+            <div className="flex items-center justify-between p-4 border-b bg-muted/30 backdrop-blur-md sticky top-0 z-10">
+                <div className="flex items-center gap-3">
+                    <Button variant="ghost" size="icon" className="sm:hidden mr-1" onClick={() => navigate('/connections')}>
+                        <ArrowLeft className="w-5 h-5" />
+                    </Button>
+                    <Avatar className="w-10 h-10 border">
+                        <AvatarImage src={currentUser.photoUrl} alt={currentUser.firstName} className="object-cover" />
+                        <AvatarFallback>{currentUser.firstName?.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col">
+                        <span className="font-semibold leading-none">
+                            {currentUser.firstName} {currentUser.lastName}
+                        </span>
+                        <span className="text-xs text-green-500 font-medium mt-1 flex items-center gap-1">
+                            <span className="w-2 h-2 rounded-full bg-green-500"></span> Online
+                        </span>
+                    </div>
+                </div>
+                
+                <div className="flex items-center gap-1 sm:gap-2 text-muted-foreground">
+                    <Button variant="ghost" size="icon" className="rounded-full hover:text-primary">
+                        <Phone className="w-5 h-5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="rounded-full hover:text-primary">
+                        <Video className="w-5 h-5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="rounded-full hidden sm:flex">
+                        <Info className="w-5 h-5" />
+                    </Button>
+                </div>
+            </div>
 
-export default Chat
+            {/* Message Area */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background/50">
+                <div className="text-center py-4">
+                    <p className="text-xs text-muted-foreground bg-muted inline-block px-3 py-1 rounded-full">
+                        You matched with {currentUser.firstName} on {new Date().toLocaleDateString()}
+                    </p>
+                </div>
+
+                <AnimatePresence initial={false}>
+                    {messages.map((msg) => {
+                        const isMe = msg.senderId === "me";
+                        return (
+                            <motion.div
+                                key={msg.id}
+                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-full`}
+                            >
+                                <div className={`flex items-end gap-2 max-w-[80%] ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                                    
+                                    {!isMe && (
+                                        <Avatar className="w-6 h-6 mb-1 hidden sm:block flex-shrink-0">
+                                            <AvatarImage src={currentUser.photoUrl} className="object-cover" />
+                                            <AvatarFallback className="text-[10px]">{currentUser.firstName?.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                    )}
+
+                                    <div 
+                                        className={`px-4 py-2.5 rounded-2xl text-sm ${
+                                            isMe 
+                                            ? 'bg-primary text-primary-foreground rounded-br-sm' 
+                                            : 'bg-muted text-foreground rounded-bl-sm border border-border/50'
+                                        }`}
+                                    >
+                                        <p className="break-words leading-relaxed">{msg.text}</p>
+                                    </div>
+                                </div>
+                                <span className={`text-[10px] text-muted-foreground mt-1 px-8 ${isMe ? 'text-right' : 'text-left'}`}>
+                                    {msg.timestamp}
+                                </span>
+                            </motion.div>
+                        );
+                    })}
+                </AnimatePresence>
+                <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input Form */}
+            <div className="p-3 sm:p-4 bg-background border-t">
+                <form 
+                    onSubmit={handleSendMessage}
+                    className="flex items-center gap-2 bg-muted/50 p-1 pl-4 rounded-full border focus-within:ring-1 focus-within:ring-primary/50 focus-within:border-primary transition-all"
+                >
+                    <Input
+                        type="text"
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        placeholder={`Message ${currentUser.firstName}...`}
+                        className="flex-1 border-0 bg-transparent focus-visible:ring-0 shadow-none px-0 h-10"
+                        autoComplete="off"
+                    />
+                    <Button 
+                        type="submit" 
+                        size="icon" 
+                        disabled={!newMessage.trim()}
+                        className={`rounded-full h-10 w-10 transition-transform ${newMessage.trim() ? 'scale-100' : 'scale-90 opacity-50'}`}
+                    >
+                        <Send className="w-4 h-4 ml-0.5" />
+                    </Button>
+                </form>
+            </div>
+        </Card>
+    );
+};
+
+export default Chat;
