@@ -2,6 +2,7 @@ import api from "@/services/api";
 import { addConnection } from "@/store/connectionSlice";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 
 export const Connections = () => {
   const dispatch = useDispatch();
@@ -30,6 +31,7 @@ export const Connections = () => {
                 <p>{age && gender ? age + ", "+ gender : "" }</p>
                 <p>{about}</p>
             </div>
+            <Link to={`/chat/${connection._id}`} className="bg-blue-500 text-white px-4 py-2 rounded-lg">Message</Link>
         </div>
     }    )}
   </div>

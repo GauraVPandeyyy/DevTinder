@@ -10,6 +10,7 @@ import { Connections } from "./components/Connections";
 import { ConnectionRequest } from "./components/ConnectionRequest";
 import Signup from "./components/Signup";
 import Premium from "./components/Premium";
+import Chat from "./components/Chat";
 const App = () => {
   return (
     <Provider store={store}>
@@ -24,6 +25,7 @@ const App = () => {
             <Route path="/connections" element={<Connections />} />
             <Route path="/requests" element={<ConnectionRequest />} />
             <Route path="/premium" element={<Premium />} />
+            <Route path="/chat/:targetUserId" element={<Chat />} />
           </Route>
         </Routes>
       </BrowserRouter>
