@@ -44,8 +44,7 @@ const UserCard = ({ user, onAction }) => {
       onDragEnd={handleDragEnd}
       animate={controls}
     >
-      <div className="relative overflow-hidden rounded-3xl bg-card border shadow-xl aspect-[3/4] backdrop-blur-sm" >
-        {/* Swipe Feedback Overlays */}
+<div className="relative overflow-hidden rounded-3xl bg-card border border-border/50 shadow-2xl aspect-[3/4] backdrop-blur-xl transition-all duration-300 hover:shadow-[0_20px_60px_rgba(0,0,0,0.25)]">        {/* Swipe Feedback Overlays */}
         <motion.div style={{ opacity: likeOpacity }} className="absolute top-8 left-8 z-20 border-4 border-green-500 rounded-lg px-4 py-1">
           <p className="text-3xl font-bold text-green-500 uppercase tracking-wider">Like</p>
         </motion.div>
@@ -55,12 +54,14 @@ const UserCard = ({ user, onAction }) => {
 
         {/* Profile Image with Gradient Fade */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src={user.photoUrl || "https://github.com/shadcn.png"} 
-            alt={user.firstName} 
-            className="w-full h-full object-cover"
-            draggable="false"
-          />
+          <motion.img
+  src={user.photoUrl || "https://github.com/shadcn.png"}
+  alt={user.firstName}
+  className="w-full h-full object-cover"
+  draggable="false"
+  whileHover={{ scale: 1.05 }}
+  transition={{ duration: 0.4 }}
+/>
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
         </div>
 

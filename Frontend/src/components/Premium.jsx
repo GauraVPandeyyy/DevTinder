@@ -7,21 +7,14 @@ const plans = [
     id: "gold",
     title: "Gold",
     price: "₹700",
-    features: [
-      "Unlimited Swipes",
-      "Priority Profile",
-      "See Who Likes You",
-    ],
+    features: ["Unlimited Swipes", "Priority Profile", "See Who Likes You"],
     highlight: true,
   },
   {
     id: "silver",
     title: "Silver",
     price: "₹300",
-    features: [
-      "More Daily Swipes",
-      "Basic Profile Boost",
-    ],
+    features: ["More Daily Swipes", "Basic Profile Boost"],
   },
 ];
 
@@ -99,16 +92,17 @@ const Premium = () => {
 
   return (
     <div className="min-h-screen p-6">
-      <div className="max-w-5xl mx-auto text-center mb-10">
-        <h1 className="text-4xl font-bold mb-3">Upgrade Your Experience</h1>
-        <p className="text-gray-400">
-          Get more visibility, more matches, and unlock premium features.
-        </p>
-      </div>
 
-      {error && (
-        <div className="text-center text-red-400 mb-6">{error}</div>
+      {!isPremium && (
+          <div className="max-w-5xl mx-auto text-center mb-10">
+            <h1 className="text-4xl font-bold mb-3">Upgrade Your Experience</h1>
+            <p className="text-gray-400">
+              Get more visibility, more matches, and unlock premium features.
+            </p>
+          </div>
       )}
+
+      {error && <div className="text-center text-red-400 mb-6">{error}</div>}
 
       {isPremium ? (
         <motion.div

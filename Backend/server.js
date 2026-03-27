@@ -17,8 +17,8 @@ const cors = require("cors");
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
-    credentials: true,
+    origin: "http://localhost:5173", // sirf specified origin allowed
+    credentials: true, //cookies / session / auth headers bhi allow
   }),
 );
 // app.use(mongoSanitize());
