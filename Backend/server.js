@@ -13,6 +13,7 @@ const profileRouter = require("./routes/profile");
 const connectionReqRoute = require("./routes/request");
 const userRouter = require("./routes/user");
 const paymentRouter = require("./routes/payment");
+const chatRouter = require("./routes/chat");
 const cors = require("cors");
 const socket = require("socket.io")
 const http = require("http");
@@ -35,6 +36,7 @@ app.use("/", profileRouter);
 app.use("/", connectionReqRoute);
 app.use("/", userRouter);
 app.use("/", paymentRouter);
+app.use("/", chatRouter);
 
 
 const server = http.createServer(app)
