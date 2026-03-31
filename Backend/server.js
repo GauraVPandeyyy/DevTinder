@@ -14,6 +14,9 @@ const connectionReqRoute = require("./routes/request");
 const userRouter = require("./routes/user");
 const paymentRouter = require("./routes/payment");
 const cors = require("cors");
+const socket = require("socket.io")
+const http = require("http");
+const initSocket = require("./utils/socket");
 
 app.use(
   cors({
@@ -33,6 +36,10 @@ app.use("/", connectionReqRoute);
 app.use("/", userRouter);
 app.use("/", paymentRouter);
 
-app.listen(process.env.PORT, () => {
+
+const server = http.createServer(app)
+initSocket(server)
+
+server.listen(process.env.PORT, () => {
   console.log("Server is listening @ PORT", process.env.PORT);
 });

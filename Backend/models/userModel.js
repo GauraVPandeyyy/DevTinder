@@ -1,105 +1,97 @@
 const mongoose = require("mongoose");
-const validator = require("validator");
-const bcrypt = require("bcrypt")
-const jwt = require("jsonwebtoken")
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
-const userSchema = mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
       required: true,
-      minLength: 3,
+      minlength: 3,
       trim: true,
     },
+
     lastName: {
       type: String,
+      trim: true,
     },
+
     isPremium: {
       type: Boolean,
       default: false,
     },
+
     membershipType: {
-      type: String
+      type: String,
     },
+
     email: {
       type: String,
       required: true,
-      lowercase: true,
       unique: true,
+      lowercase: true,
       trim: true,
-      // match: /.+\@.+\..+/,
-      validate(v) {
-        if (!validator.isEmail(v)) {
-          throw new Error("Invalid email value - " + v);
-        }
-      },
     },
+
     password: {
       type: String,
       required: true,
-      validate: {
-        validator: function (value) {
-          return validator.isStrongPassword(value);
-        },
-        message: `Weak password`,
-      },
     },
+
     age: {
       type: Number,
-      min: [18, "age should be greater than 18"],
-      max: [100, "age should be lesser than 100"],
+      min: 18,
+      max: 100,
     },
+
     gender: {
       type: String,
-      validate(value) {
-        if (value === "" || value === null) return true;
-        if (!["male", "female", "others"].includes(value)) {
-          throw new Error(
-            "Gender Data is not valid! eg:(male , female , others)",
-          );
-        }
-      },
+      enum: ["male", "female", "others"],
     },
+
     photoUrl: {
       type: String,
-      default: "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small_2x/default-avatar-icon-of-social-media-user-vector.jpg",
+      default:
+        "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon.jpg",
     },
+
     about: {
       type: String,
-      maxlength: [500, "About length can't exceed 500"],
+      maxlength: 500,
       default: "There is nothing about this person",
     },
+
     skills: {
       type: [String],
-       default: [],
-      validate: {
-        validator: function (v) {
-          return v.length <= 10;
-        },
-        message: "Skills cannot exceed 10!",
-      },
+      default: [],
     },
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true }
 );
 
-userSchema.methods.comparePassword = async function (passwordInputByUser) {
-  const user = this;
-  const passwordHash = user.password;
-  const isMatch = await bcrypt.compare(passwordInputByUser, passwordHash);
-  return isMatch;
+
+// 🔐 AUTO HASH PASSWORD
+// userSchema.pre("save", async function (next) {
+//   if (!this.isModified("password")) return next();
+
+//   this.password = await bcrypt.hash(this.password, 10);
+//   next();
+// });
+
+
+// 🔑 COMPARE PASSWORD
+userSchema.methods.comparePassword = function (password) {
+  return bcrypt.compare(password, this.password);
 };
 
-userSchema.methods.getJWT = async function () {
-  const user = this;
-  const token = await jwt.sign({ id: user._id }, "DevTinder@123", {
-    expiresIn: "8h",
-  });
 
-  return token
+// 🎫 GENERATE JWT
+userSchema.methods.getJWT = function () {
+  return jwt.sign(
+    { id: this._id },
+    process.env.JWT_SECRET,
+    { expiresIn: "8h" }
+  );
 };
 
-const User = mongoose.model("User", userSchema);
-module.exports = User;
+module.exports = mongoose.model("User", userSchema);

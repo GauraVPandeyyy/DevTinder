@@ -19,8 +19,8 @@ import {
 } from "@/components/ui/card";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("gaurav@gmail.com");
+  const [password, setPassword] = useState("Gaurav@123");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);

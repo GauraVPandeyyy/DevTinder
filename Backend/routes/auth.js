@@ -54,7 +54,8 @@ authRouter.post("/signup", signupValidation, async (req, res) => {
     const token = await data.getJWT();
 
     res.cookie("token", token, {
-      expires: new Date(Date.now() + 8 * 3600000), // cookie will be removed after 8 hours
+      httpOnly: true,
+      maxAge: 8 * 60 * 60 * 1000, // cookie will be removed after 8 hours
     });
 
     return res.status(201).json({

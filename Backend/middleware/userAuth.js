@@ -6,7 +6,7 @@ const userAuth = async (req, res, next) => {
     if (!token) {
       return res.status(401).send("Please Login")
     }
-    const decodedData = await jwt.verify(token, "DevTinder@123");
+    const decodedData = await jwt.verify(token, process.env.JWT_SECRET);
     const { id } = decodedData;
     const user = await User.findById(id).select("-password");
     if (!user) {
@@ -18,7 +18,7 @@ const userAuth = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({
         success: false,
-        message : error.message
+        message : error.message,
     })
   }
 };

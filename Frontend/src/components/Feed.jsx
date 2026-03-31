@@ -11,7 +11,7 @@ const Feed = () => {
   const dispatch = useDispatch();
   const data = useSelector((state) => state.feed);
   const feed = data ? data.feed : null; // Safely access feed array
-  console.log("feed", feed)
+  console.log("feed", feed);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -19,7 +19,8 @@ const Feed = () => {
       try {
         const res = await api.get("/user/feed");
         // Ensure we handle standard API responses correctly
-        dispatch(setFeed(res.data.data || res.data)); 
+        console.log("feed", res.data)
+        dispatch(setFeed(res.data.feed || [])); // Default to empty array if feed is missing
       } catch (error) {
         console.error("Error fetching feed:", error);
       } finally {
@@ -27,7 +28,7 @@ const Feed = () => {
       }
     };
 
-    if (!feed) {
+    if (!feed || feed.length === 0) {
       fetchFeed();
     } else {
       setIsLoading(false);
@@ -36,20 +37,23 @@ const Feed = () => {
 
   const handleAction = async (status, targetUserId) => {
     try {
-      console.log("interested", status)
+      console.log("interested", status);
       await api.post(`/request/send/${status}/${targetUserId}`);
-      
+
       dispatch(removeFeed(targetUserId));
-      
+
       if (status === "interested") {
         toast.success("Interest sent! 🚀", { icon: "🔥" });
       }
     } catch (error) {
       // 🚨 REAL ERROR YAHAN PRINT HOGA
-      console.error("SWIPE CRASH ERROR:", error); 
-      
+      console.error("SWIPE CRASH ERROR:", error);
+
       // Agar backend se error aayi hai, ya phir JS error aayi hai, usko show karega
-      const errorMsg = error.response?.data?.message || error.message || "Something went wrong processing swipe";
+      const errorMsg =
+        error.response?.data?.message ||
+        error.message ||
+        "Something went wrong processing swipe";
       toast.error(errorMsg);
     }
   };
@@ -71,7 +75,8 @@ const Feed = () => {
         </div>
         <h2 className="text-2xl font-bold tracking-tight">You've caught up!</h2>
         <p className="text-muted-foreground">
-          There are no new developers in your area. Update your profile or check back later.
+          There are no new developers in your area. Update your profile or check
+          back later.
         </p>
         <Button variant="outline" onClick={() => window.location.reload()}>
           Refresh Feed
@@ -86,11 +91,7 @@ const Feed = () => {
         We reverse the array so the first item in the array is on top of the DOM stack.
       */}
       {feed.map((user, index) => (
-        <UserCard 
-          key={user._id} 
-          user={user} 
-          onAction={handleAction} 
-        />
+        <UserCard key={user._id} user={user} onAction={handleAction} />
       ))}
     </div>
   );
