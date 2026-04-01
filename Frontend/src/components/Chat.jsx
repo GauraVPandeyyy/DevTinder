@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import createSocketConnection from "@/utils/socket";
+import api from "@/services/api";
 
 const Chat = () => {
   const { targetUserId } = useParams();
@@ -33,7 +34,7 @@ const Chat = () => {
       firstName: user.firstName,
     });
 
-    socket.on("messageRecieved", ({firstName, text}) => {
+    socket.on("messageReceived", ({firstName, text}) => {
       console.log(firstName + " :  " + text);
       setMessages((prev) => [
         ...prev,
@@ -45,6 +46,24 @@ const Chat = () => {
       socket.disconnect();
     };
   }, [userId, targetUserId]);
+
+  const fetchMessages = async () => {
+    try {
+      const response = await api.get(`/chat/${targetUserId}`);
+      // console.log("Fetched messages:", response.data);
+      let chatMessages = response.data.messages.map((msg) => ({
+        firstName: msg.senderId.firstName,
+        text: msg.text,
+      }));
+      setMessages(chatMessages);
+    } catch (error) {
+      console.error("Failed to fetch messages:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchMessages();
+  }, [targetUserId]);
 
   // Dummy state for UI demonstration - replace with real API/Socket logic later
   //   const [messages, setMessages] = useState([
@@ -188,8 +207,8 @@ const Chat = () => {
 
         <AnimatePresence initial={false}>
           {messages.map((msg, index) => {
-            // const isMe = msg.senderId === "me";
-            const isMe = true;
+            const isMe = msg.senderId === userId;
+            // const isMe = true;
             return (
               <motion.div
                 key={index}
