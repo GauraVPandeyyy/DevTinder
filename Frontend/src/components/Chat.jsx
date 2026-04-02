@@ -34,11 +34,11 @@ const Chat = () => {
       firstName: user.firstName,
     });
 
-    socket.on("messageReceived", ({firstName, text}) => {
+    socket.on("messageReceived", ({senderId,firstName, text}) => {
       console.log(firstName + " :  " + text);
       setMessages((prev) => [
         ...prev,
-        { firstName, text },
+        {senderId, firstName, text },
       ]);
     });
 
@@ -53,6 +53,7 @@ const Chat = () => {
       // console.log("Fetched messages:", response.data);
       let chatMessages = response.data.messages.map((msg) => ({
         firstName: msg.senderId.firstName,
+        senderId: msg.senderId._id,
         text: msg.text,
       }));
       setMessages(chatMessages);
@@ -120,10 +121,10 @@ const Chat = () => {
     });
 
     // setMessages((prev) => [...prev, newMsgObj]);
-    setMessages((prev) => [
-      ...prev,
-      { firstName: user.firstName, text: newMessage },
-    ]);
+    // setMessages((prev) => [
+    //   ...prev,
+    //   { firstName: user.firstName, text: newMessage },
+    // ]);
     setNewMessage("");
   };
 
