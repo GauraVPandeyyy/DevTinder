@@ -4,7 +4,7 @@ const createSocketConnection = ()=>{
     if(location.hostname === "localhost"){
         return io("http://localhost:5000")
     }else{
-       return io("/",{path:"/socket.io"})
+       return io("/",{path:"/api/socket.io"})
     }
 }
 export default createSocketConnection;

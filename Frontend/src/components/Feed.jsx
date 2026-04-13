@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setFeed, removeFeed } from "@/store/feedSlice";
 import api from "@/services/api";
@@ -9,31 +9,26 @@ import toast from "react-hot-toast";
 
 const Feed = () => {
   const dispatch = useDispatch();
-  const data = useSelector((state) => state.feed);
-  const feed = data ? data.feed : null; // Safely access feed array
+const feed = useSelector((state) => state.feed);
   console.log("feed", feed);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchFeed = async () => {
-      try {
-        const res = await api.get("/user/feed");
-        // Ensure we handle standard API responses correctly
-        console.log("feed", res.data)
-        dispatch(setFeed(res.data.feed || [])); // Default to empty array if feed is missing
-      } catch (error) {
-        console.error("Error fetching feed:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (!feed || feed.length === 0) {
-      fetchFeed();
-    } else {
+  const fetchFeed = async () => {
+    try {
+      const res = await api.get("/user/feed");
+      // Ensure we handle standard API responses correctly
+      console.log("fetch feed", res.data);
+      dispatch(setFeed(res.data.feed || [])); // Default to empty array if feed is missing
+    } catch (error) {
+      console.error("Error fetching feed:", error);
+    } finally {
       setIsLoading(false);
     }
-  }, [dispatch, feed]);
+  };
+  useEffect(() => {
+    fetchFeed();
+  }, []);
+
 
   const handleAction = async (status, targetUserId) => {
     try {
