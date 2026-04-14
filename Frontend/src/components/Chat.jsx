@@ -17,6 +17,8 @@ const Chat = () => {
   const typingTimeoutRef = useRef(null);
   const [isTyping, setIsTyping] = useState(false);
   const [typingUser, setTypingUser] = useState("");
+  const [isOnline, setIsOnline] = useState(false);
+  const [lastSeen, setLastSeen] = useState(null);
 
   const { targetUserId } = useParams();
   const navigate = useNavigate();
@@ -40,8 +42,40 @@ const Chat = () => {
       firstName: user.firstName,
     });
 
+    // 🔥 INITIAL PRESENCE
+    socketRef.current.emit("getOnlineUsers");
+
+    socketRef.current.on("onlineUsersList", (users) => {
+      setIsOnline(users.includes(targetUserId));
+    });
+
+    // 🔥 MESSAGE
     socketRef.current.on("messageReceived", ({ senderId, firstName, text }) => {
       setMessages((prev) => [...prev, { senderId, firstName, text }]);
+    });
+
+    // 🔥 ONLINE
+    socketRef.current.on("userOnline", ({ userId: onlineId }) => {
+      if (onlineId === targetUserId) {
+        setIsOnline(true);
+      }
+    });
+
+    // 🔥 OFFLINE
+    socketRef.current.on("userOffline", ({ userId: offlineId, lastSeen }) => {
+      if (offlineId === targetUserId) {
+        setIsOnline(false);
+        setLastSeen(lastSeen);
+      }
+    });
+
+    // 🔥 TYPING
+    socketRef.current.on("userTyping", () => {
+      setIsTyping(true);
+    });
+
+    socketRef.current.on("userStoppedTyping", () => {
+      setIsTyping(false);
     });
 
     return () => {
@@ -64,7 +98,17 @@ const Chat = () => {
     }
   };
 
+  const fetchLastSeen = async () => {
+    try {
+      const res = await api.get(`/user/lastSeen/${targetUserId}`);
+      setLastSeen(res.data.lastSeen);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
+    fetchLastSeen();
     fetchMessages();
   }, [targetUserId]);
 
@@ -102,22 +146,35 @@ const Chat = () => {
     }, 1000);
   };
 
-  useEffect(() => {
-    if (!socketRef.current) return;
+  // useEffect(() => {
+  //   if (!socketRef.current) return;
 
-    socketRef.current.on("userTyping", () => {
-      setIsTyping(true);
-    });
+  //   socketRef.current.on("userOnline", ({ userId }) => {
+  //     if (userId === targetUserId) {
+  //       setIsOnline(true);
+  //     }
+  //   });
 
-    socketRef.current.on("userStoppedTyping", () => {
-      setIsTyping(false);
-    });
+  //   socketRef.current.on("userOffline", ({ userId, lastSeen }) => {
+  //     if (userId === targetUserId) {
+  //       setIsOnline(false);
+  //       setLastSeen(lastSeen);
+  //     }
+  //   });
 
-    return () => {
-      socketRef.current.off("userTyping");
-      socketRef.current.off("userStoppedTyping");
-    };
-  }, []);
+  //   socketRef.current.on("userTyping", () => {
+  //     setIsTyping(true);
+  //   });
+
+  //   socketRef.current.on("userStoppedTyping", () => {
+  //     setIsTyping(false);
+  //   });
+
+  //   return () => {
+  //     socketRef.current.off("userTyping");
+  //     socketRef.current.off("userStoppedTyping");
+  //   };
+  // }, []);
   const handleSendMessage = (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
@@ -171,11 +228,19 @@ const Chat = () => {
               {currentUser.firstName} {currentUser.lastName}
             </span>
             <span className="text-xs text-green-500 font-medium mt-1 flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-green-500"></span> Online
+              {isTyping ? (
+                <span>Typing...</span>
+              ) : isOnline ? (
+                <span className="text-green-500">Online</span>
+              ) : lastSeen ? (
+                <span>Last seen {new Date(lastSeen).toLocaleTimeString()}</span>
+              ) : (
+                <span>Offline</span>
+              )}
             </span>
-            {isTyping && (
+            {/* {isTyping && (
               <p className="text-sm text-gray-400 px-2">typing...</p>
-            )}
+            )} */}
           </div>
         </div>
 

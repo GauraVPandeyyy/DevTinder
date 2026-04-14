@@ -43,6 +43,10 @@ const userSchema = new mongoose.Schema(
       min: 18,
       max: 100,
     },
+    lastSeen: {
+      type: Date,
+      default: null,
+    },
 
     gender: {
       type: String,
@@ -66,9 +70,8 @@ const userSchema = new mongoose.Schema(
       default: [],
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
-
 
 // 🔐 AUTO HASH PASSWORD
 // userSchema.pre("save", async function (next) {
@@ -78,20 +81,16 @@ const userSchema = new mongoose.Schema(
 //   next();
 // });
 
-
 // 🔑 COMPARE PASSWORD
 userSchema.methods.comparePassword = function (password) {
   return bcrypt.compare(password, this.password);
 };
 
-
 // 🎫 GENERATE JWT
 userSchema.methods.getJWT = function () {
-  return jwt.sign(
-    { id: this._id },
-    process.env.JWT_SECRET,
-    { expiresIn: "8h" }
-  );
+  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+    expiresIn: "8h",
+  });
 };
 
 module.exports = mongoose.model("User", userSchema);

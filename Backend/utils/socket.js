@@ -1,6 +1,10 @@
 const socket = require("socket.io");
 const crypto = require("crypto");
 const Chat = require("../models/chat");
+const User = require("../models/userModel");
+
+const onlineUsers = new Map();
+
 const getSecretRoomId = (userId, targetUserId) => {
   return crypto
     .createHash("sha256")
@@ -21,6 +25,62 @@ const initSocket = (server) => {
       const roomId = getSecretRoomId(userId, targetUserId);
       console.log(firstName + " - " + roomId);
       socket.join(roomId);
+
+      // ===== ONLINE LOGIC START =====
+
+      // if (!onlineUsers.has(userId)) {
+      //   onlineUsers.set(userId, new Set());
+      // }
+
+      // onlineUsers.get(userId).add(socket.id);
+
+      // console.log("ONLINE USERS:", onlineUsers);
+
+      //  socket.to(roomId).emit("userOnline", { userId });
+
+      // ===== ONLINE LOGIC END =====
+    });
+
+    socket.on("userConnected", ({ userId }) => {
+      if (!onlineUsers.has(userId)) {
+        onlineUsers.set(userId, new Set());
+      }
+
+      onlineUsers.get(userId).add(socket.id);
+
+      io.emit("userOnline", { userId });
+    });
+
+    socket.on("getOnlineUsers", () => {
+      socket.emit("onlineUsersList", Array.from(onlineUsers.keys()));
+    });
+
+    socket.on("disconnect", async () => {
+      console.log("Socket disconnected:", socket.id);
+
+      for (let [userId, socketSet] of onlineUsers.entries()) {
+        if (socketSet.has(socket.id)) {
+          socketSet.delete(socket.id);
+
+          // if no active sockets left
+          if (socketSet.size === 0) {
+            onlineUsers.delete(userId);
+
+            const lastSeen = new Date();
+
+            io.emit("userOffline", {
+              userId,
+              lastSeen,
+            });
+
+            await User.findByIdAndUpdate(userId, {
+              lastSeen,
+            });
+          }
+
+          break;
+        }
+      }
     });
 
     socket.on(

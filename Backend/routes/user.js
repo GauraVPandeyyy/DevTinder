@@ -57,8 +57,6 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
     });
 
     return res.status(200).json({ message: "Data fetched Successfully", data });
-
-    
   } catch (err) {
     return res.status(400).json({ message: err.message });
   }
@@ -97,6 +95,18 @@ userRouter.get("/user/feed", userAuth, async (req, res) => {
       message: "Feed Data Fetched Successfully",
       feed,
     });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+userRouter.get("/user/lastSeen/:userId", userAuth, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).select("lastSeen");
+    res.json({ lastSeen: user?.lastSeen });
   } catch (error) {
     return res.status(400).json({
       success: false,
