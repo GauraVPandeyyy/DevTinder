@@ -12,6 +12,12 @@ import createSocketConnection from "@/utils/socket";
 import api from "@/services/api";
 
 const Chat = () => {
+  //useRef
+  const socketRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
+  const [isTyping, setIsTyping] = useState(false);
+  const [typingUser, setTypingUser] = useState("");
+
   const { targetUserId } = useParams();
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
@@ -24,26 +30,22 @@ const Chat = () => {
   const userId = user?._id;
 
   useEffect(() => {
-    if (!userId) {
-      return;
-    }
-    const socket = createSocketConnection();
-    socket.emit("joinChat", {
+    if (!userId) return;
+
+    socketRef.current = createSocketConnection();
+
+    socketRef.current.emit("joinChat", {
       userId,
       targetUserId,
       firstName: user.firstName,
     });
 
-    socket.on("messageReceived", ({senderId,firstName, text}) => {
-      console.log(firstName + " :  " + text);
-      setMessages((prev) => [
-        ...prev,
-        {senderId, firstName, text },
-      ]);
+    socketRef.current.on("messageReceived", ({ senderId, firstName, text }) => {
+      setMessages((prev) => [...prev, { senderId, firstName, text }]);
     });
 
     return () => {
-      socket.disconnect();
+      socketRef.current.disconnect();
     };
   }, [userId, targetUserId]);
 
@@ -66,27 +68,6 @@ const Chat = () => {
     fetchMessages();
   }, [targetUserId]);
 
-  // Dummy state for UI demonstration - replace with real API/Socket logic later
-  //   const [messages, setMessages] = useState([
-  //     {
-  //       id: 1,
-  //       text: "Hey! Thanks for connecting.",
-  //       senderId: targetUserId,
-  //       timestamp: "10:00 AM",
-  //     },
-  //     {
-  //       id: 2,
-  //       text: "Hi! Nice to meet you. I saw you're working with React as well.",
-  //       senderId: "me",
-  //       timestamp: "10:05 AM",
-  //     },
-  //     {
-  //       id: 3,
-  //       text: "Yeah! I love the ecosystem. Building a new project right now.",
-  //       senderId: targetUserId,
-  //       timestamp: "10:06 AM",
-  //     },
-  //   ]);
   const messagesEndRef = useRef(null);
 
   // Auto-scroll to bottom when new messages arrive
@@ -98,33 +79,56 @@ const Chat = () => {
     scrollToBottom();
   }, [messages]);
 
+  const handleTyping = (e) => {
+    setNewMessage(e.target.value);
+
+    // send typing event
+    socketRef.current.emit("typing", {
+      userId,
+      targetUserId,
+    });
+
+    // clear old timer
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // new timer
+    typingTimeoutRef.current = setTimeout(() => {
+      socketRef.current.emit("stopTyping", {
+        userId,
+        targetUserId,
+      });
+    }, 1000);
+  };
+
+  useEffect(() => {
+    if (!socketRef.current) return;
+
+    socketRef.current.on("userTyping", () => {
+      setIsTyping(true);
+    });
+
+    socketRef.current.on("userStoppedTyping", () => {
+      setIsTyping(false);
+    });
+
+    return () => {
+      socketRef.current.off("userTyping");
+      socketRef.current.off("userStoppedTyping");
+    };
+  }, []);
   const handleSendMessage = (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
-    // const newMsgObj = {
-    //   id: Date.now(),
-    //   text: newMessage,
-    //   senderId: "me",
-    //   timestamp: new Date().toLocaleTimeString([], {
-    //     hour: "2-digit",
-    //     minute: "2-digit",
-    //   }),
-    // };
-
-    const socket = createSocketConnection();
-    socket.emit("messageSend", {
+    socketRef.current.emit("messageSend", {
       firstName: user.firstName,
       userId,
       targetUserId,
       text: newMessage,
     });
 
-    // setMessages((prev) => [...prev, newMsgObj]);
-    // setMessages((prev) => [
-    //   ...prev,
-    //   { firstName: user.firstName, text: newMessage },
-    // ]);
     setNewMessage("");
   };
 
@@ -169,6 +173,9 @@ const Chat = () => {
             <span className="text-xs text-green-500 font-medium mt-1 flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-green-500"></span> Online
             </span>
+            {isTyping && (
+              <p className="text-sm text-gray-400 px-2">typing...</p>
+            )}
           </div>
         </div>
 
@@ -263,7 +270,7 @@ const Chat = () => {
           <Input
             type="text"
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={handleTyping}
             placeholder={`Message ${currentUser.firstName}...`}
             className="flex-1 border-0 bg-transparent focus-visible:ring-0 shadow-none px-0 h-10"
             autoComplete="off"

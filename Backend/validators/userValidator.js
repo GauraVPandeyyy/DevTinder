@@ -11,7 +11,6 @@ exports.signupValidation = [
   body("lastName")
     .optional()
     .trim()
-    .notEmpty().withMessage("Last name cannot be empty")
     .isLength({ min: 3 }).withMessage("Last name must be at least 3 characters"),
 
   body("email")

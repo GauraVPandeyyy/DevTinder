@@ -43,18 +43,39 @@ const initSocket = (server) => {
           }
 
           chat.messages.push({
-            senderId : userId,
-            text
-          })
+            senderId: userId,
+            text,
+          });
 
           await chat.save();
 
-          io.to(roomId).emit("messageReceived", {senderId: userId, firstName, text });
+          io.to(roomId).emit("messageReceived", {
+            senderId: userId,
+            firstName,
+            text,
+          });
         } catch (error) {
           console.error(error.message);
         }
       },
     );
+
+    socket.on("typing", ({ userId, targetUserId }) => {
+      const roomId = getSecretRoomId(userId, targetUserId);
+
+      console.log("Starts typing...");
+
+      // send to OTHER user only
+      socket.to(roomId).emit("userTyping");
+    });
+
+    socket.on("stopTyping", ({ userId, targetUserId }) => {
+      const roomId = getSecretRoomId(userId, targetUserId);
+
+      console.log("stopped typing");
+
+      socket.to(roomId).emit("userStoppedTyping");
+    });
   });
 };
 
