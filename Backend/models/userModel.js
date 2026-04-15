@@ -55,8 +55,7 @@ const userSchema = new mongoose.Schema(
 
     photoUrl: {
       type: String,
-      default:
-        "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon.jpg",
+      default: "https://github.com/shadcn.png",
     },
 
     about: {
@@ -64,7 +63,11 @@ const userSchema = new mongoose.Schema(
       maxlength: 500,
       default: "There is nothing about this person",
     },
-
+    jobTitle: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     skills: {
       type: [String],
       default: [],

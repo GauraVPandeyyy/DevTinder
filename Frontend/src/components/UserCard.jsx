@@ -40,7 +40,7 @@ const UserCard = ({ user, onAction }) => {
 
   return (
     <motion.div
-      className="absolute inset-0 cursor-grab active:cursor-grabbing touch-none"
+      className="absolute inset-0 z-50 cursor-grab active:cursor-grabbing touch-none"
       style={{ x, rotate, opacity }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
@@ -56,14 +56,14 @@ const UserCard = ({ user, onAction }) => {
         <img
           src={user.photoUrl || "https://github.com/shadcn.png"}
           alt={user.firstName}
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          className="absolute inset-0 z-10 w-full h-full object-cover pointer-events-none"
           draggable="false"
         />
 
         {/* Heavy Gradient Overlay: 
           Crucial for making white text readable over bright images 
         */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-[#09090b]/60 to-transparent opacity-90 pointer-events-none" />
+        <div className="absolute z-10 inset-0 bg-gradient-to-t from-[#030305] via-[#09090b]/60 to-transparent opacity-90 pointer-events-none" />
 
         {/* Swipe Overlays */}
         <motion.div style={{ opacity: likeOpacity }} className="absolute top-10 left-8 z-20 border-[3px] border-[#22d3ee] rounded-xl px-6 py-2 -rotate-12 pointer-events-none shadow-[0_0_30px_rgba(34,211,238,0.4)]">

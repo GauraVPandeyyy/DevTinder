@@ -55,8 +55,8 @@ exports.signupValidation = [
 
 // ================= PROFILE UPDATE =================
 exports.profileUpdateValidation = [
+
   body("firstName")
-    .optional()
     .trim()
     .notEmpty().withMessage("First name cannot be empty")
     .isLength({ min: 3, max: 50 }),
@@ -66,31 +66,41 @@ exports.profileUpdateValidation = [
     .trim()
     .isLength({ min: 3, max: 50 }),
 
-body("age")
-  .optional({ checkFalsy: true }) // Agar empty string ya null ho toh skip karega
-  .trim()                        // Extra spaces hatayega
-  .isInt({ min: 18, max: 100 })  // Range check karega
-  .withMessage("Age must be a number between 18 and 100") 
-  .toInt(),                     // String "25" ko number 25 bana dega
+  body("age")
+    .optional({ checkFalsy: true })
+    .isInt({ min: 18, max: 100 })
+    .withMessage("Age must be between 18-100")
+    .toInt(),
 
   body("gender")
     .optional()
-    .isIn(["male", "female", "others"]),
+    .isIn(["male", "female", "others"])
+    .withMessage("Invalid gender"),
 
-  body("photoUrl")
-    .optional()
-    .isURL(),
+  body("about")
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ max: 500 })
+    .withMessage("About cannot exceed 500 characters"),
+
+  body("jobTitle") // ✅ NEW
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage("Job title must be 2-50 characters"),
 
   body("skills")
     .optional()
-    .isArray({ max: 10 }),
+    .isArray({ max: 10 })
+    .withMessage("Max 10 skills allowed"),
 
   body("skills.*")
     .optional()
     .isString()
     .trim()
     .notEmpty()
-    .isLength({ min: 2, max: 30 }),
+    .isLength({ min: 2, max: 30 })
+    .withMessage("Each skill must be 2-30 characters"),
 ];
 
 
