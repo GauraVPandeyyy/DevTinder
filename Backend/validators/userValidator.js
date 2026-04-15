@@ -9,7 +9,7 @@ exports.signupValidation = [
     .isLength({ min: 3 }).withMessage("First name must be at least 3 characters"),
 
   body("lastName")
-    .optional()
+    .optional({checkFalsy : true})
     .trim()
     .isLength({ min: 3 }).withMessage("Last name must be at least 3 characters"),
 
@@ -62,9 +62,8 @@ exports.profileUpdateValidation = [
     .isLength({ min: 3, max: 50 }),
 
   body("lastName")
-    .optional()
+    .optional({ checkFalsy: true })
     .trim()
-    .notEmpty().withMessage("Last name cannot be empty")
     .isLength({ min: 3, max: 50 }),
 
 body("age")

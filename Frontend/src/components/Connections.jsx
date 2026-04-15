@@ -2,15 +2,11 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Loader2, MessageCircle, UserX } from "lucide-react";
+import { Loader2, MessageSquare, Users } from "lucide-react";
 import api from "@/services/api";
-import { setConnections } from "@/store/connectionSlice"; // FIXED IMPORT
+import { setConnections } from "@/store/connectionSlice";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-export const Connections = () => {
+const Connections = () => {
   const dispatch = useDispatch();
   const connections = useSelector((store) => store.connections);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,88 +27,92 @@ export const Connections = () => {
 
   if (isLoading) {
     return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      <div className="flex h-[calc(100dvh-5rem)] items-center justify-center bg-background">
+        <Loader2 className="w-12 h-12 animate-spin text-[#22d3ee]" />
       </div>
     );
   }
 
-  if (!connections || connections.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[60vh] text-center space-y-4">
-        <div className="bg-muted p-6 rounded-full">
-          <UserX className="w-12 h-12 text-muted-foreground" />
-        </div>
-        <h2 className="text-2xl font-bold tracking-tight">No connections yet</h2>
-        <p className="text-muted-foreground max-w-sm">
-          Start swiping on the feed to find developers and build your network.
-        </p>
-        <Button asChild variant="default" className="mt-4">
-          <Link to="/">Explore Feed</Link>
-        </Button>
-      </div>
-    );
-  }
+  // Animation variants for the staggering effect
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  };
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Your Network</h1>
-        <p className="text-muted-foreground">
-          You have {connections.length} {connections.length === 1 ? 'connection' : 'connections'}.
-        </p>
-      </div>
+    <div className="min-h-[calc(100dvh-5rem)] bg-background w-full px-4 py-6 md:p-8">
+      <div className="max-w-2xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Your Matches</h1>
+          <p className="text-muted-foreground">Start a conversation with developers who matched with you.</p>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {connections.map((connection, index) => {
-          const { _id, firstName, lastName, photoUrl, age, gender, about, jobTitle } = connection;
-          
-          return (
-            <motion.div
-              key={_id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
-            >
-              <Card className="overflow-hidden hover:shadow-md transition-shadow">
-                <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
-                  <Avatar className="w-24 h-24 border-2 border-primary/10">
-                    <AvatarImage src={photoUrl} className="object-cover" />
-                    <AvatarFallback className="text-2xl">{firstName?.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  
-                  <div className="space-y-1 w-full">
-                    <h2 className="font-bold text-xl line-clamp-1">
-                      {firstName} {lastName}
-                    </h2>
-                    <p className="text-sm font-medium text-primary">
-                      {jobTitle || "Developer"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {[age, gender].filter(Boolean).join(" • ")}
-                    </p>
-                  </div>
+        {!connections || connections.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center border border-white/10 shadow-[0_0_30px_rgba(34,211,238,0.1)]">
+              <Users className="w-10 h-10 text-[#22d3ee]" />
+            </div>
+            <h3 className="text-xl font-semibold text-white">No matches yet</h3>
+            <p className="text-muted-foreground max-w-xs">Keep swiping to connect with other amazing developers!</p>
+          </div>
+        ) : (
+          <motion.div 
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="flex flex-col gap-3"
+          >
+            {connections.map((conn) => {
+              const { _id, firstName, lastName, photoUrl, jobTitle } = conn;
+              return (
+                <motion.div key={_id} variants={item}>
+                  <Link 
+                    to={`/chat/${_id}`}
+                    className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.06] hover:border-white/10 transition-all group"
+                  >
+                    {/* Glowing Avatar */}
+                    <div className="relative">
+                      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-[#22d3ee]/50 shadow-[0_0_15px_rgba(34,211,238,0.2)] group-hover:border-[#22d3ee] transition-colors">
+                        <img 
+                          src={photoUrl || "https://github.com/shadcn.png"} 
+                          alt={firstName} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-background rounded-full" />
+                    </div>
 
-                  {about && (
-                    <p className="text-sm text-muted-foreground line-clamp-2 w-full">
-                      {about}
-                    </p>
-                  )}
+                    {/* User Info */}
+                    <div className="flex-1 min-w-0">
+                      <h2 className="font-bold text-lg text-white truncate">
+                        {firstName} {lastName}
+                      </h2>
+                      <p className="text-sm font-medium text-[#22d3ee] truncate">
+                        {jobTitle || "Software Engineer"}
+                      </p>
+                    </div>
 
-                  <div className="w-full pt-4 border-t mt-auto">
-                    <Button asChild variant="outline" className="w-full hover:bg-primary hover:text-primary-foreground transition-colors">
-                      <Link to={`/chat/${_id}`}>
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        Message
-                      </Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          );
-        })}
+                    {/* Action Icon */}
+                    <div className="w-10 h-10 rounded-full bg-[#22d3ee]/10 flex items-center justify-center group-hover:bg-[#22d3ee] group-hover:text-black text-[#22d3ee] transition-all">
+                      <MessageSquare className="w-5 h-5" />
+                    </div>
+                  </Link>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        )}
       </div>
     </div>
   );
 };
+
+export default Connections;

@@ -1,152 +1,111 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { Home, Users, MessageSquare, User, LogOut, ComputerIcon } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import { removeUser } from "@/store/userSlice";
 import api from "@/services/api";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { 
-  User, 
-  Users, 
-  BellRing, 
-  Sparkles, 
-  LogOut ,
-  ComputerIcon
-} from "lucide-react";
 
-export default function Navbar({ className }) {
+const Navbar = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((store) => store.user);
 
-  const logOutHandler = async () => {
+  const handleLogout = async () => {
     try {
-      await api.post("/logout");
+      await api.post("/logout", {});
       dispatch(removeUser());
       navigate("/login");
-    } catch (error) {
-      console.error("Logout failed", error);
+    } catch (err) {
+      console.error(err);
     }
   };
 
+  if (!user) return null;
+
+  const navItems = [
+    { icon: Home, label: "Feed", path: "/" },
+    { icon: Users, label: "Requests", path: "/requests" },
+    { icon: MessageSquare, label: "Matches", path: "/connections" },
+    { icon: User, label: "Profile", path: "/profile" },
+  ];
+
   return (
-    <header 
-      className={cn(
-        "sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60",
-        className
-      )}
-    >
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-8">
-        {/* Brand Logo */}
-        <Link 
-          to="/" 
-          className="flex items-center gap-2 transition-opacity hover:opacity-80"
-        >
-          <div className="bg-primary/10 p-2 rounded-xl">
-            <ComputerIcon className="w-5 h-5 text-primary" />
+    <>
+      {/* --- DESKTOP SIDEBAR --- */}
+      <aside className="hidden md:flex flex-col fixed left-0 top-0 h-screen w-20 lg:w-64 border-r border-white/5 bg-[#09090b]/80 backdrop-blur-xl z-[100] transition-all">
+        
+        {/* Brand */}
+        <div className="p-6 pt-8 flex items-center justify-center lg:justify-start gap-3">
+          <div className="bg-[#22d3ee]/10 p-2 rounded-xl border border-[#22d3ee]/20 shadow-[0_0_15px_rgba(34,211,238,0.1)]">
+            <ComputerIcon className="w-6 h-6 text-[#22d3ee]" />
           </div>
-          <span className="text-xl font-bold tracking-tight">
-            Dev<span className="text-primary">Tinder</span>
+          <span className="text-2xl font-black tracking-tight text-white hidden lg:block">
+            Dev<span className="text-[#22d3ee]">Tinder</span>
           </span>
-        </Link>
-
-        {/* Right Side Navigation */}
-        <div className="flex items-center gap-2 md:gap-4">
-          {user ? (
-            <>
-              {/* Desktop Nav Links */}
-              <nav className="hidden md:flex items-center gap-1 mr-4">
-                <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground">
-                  <Link to="/connections">
-                    <Users className="w-4 h-4 mr-2" />
-                    Connections
-                  </Link>
-                </Button>
-                <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground">
-                  <Link to="/requests">
-                    <BellRing className="w-4 h-4 mr-2" />
-                    Requests
-                  </Link>
-                </Button>
-              </nav>
-
-              {/* User Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full border-2 border-transparent hover:border-primary/20 transition-all">
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage src={user.photoUrl} alt={user.firstName} className="object-cover" />
-                      <AvatarFallback className="bg-primary/10 text-primary">
-                        {user.firstName?.charAt(0) || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user.firstName} {user.lastName}</p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user.email || "Developer"}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem asChild>
-                      <Link to="/profile" className="cursor-pointer">
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Profile</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="md:hidden">
-                      <Link to="/connections" className="cursor-pointer">
-                        <Users className="mr-2 h-4 w-4" />
-                        <span>Connections</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="md:hidden">
-                      <Link to="/requests" className="cursor-pointer">
-                        <BellRing className="mr-2 h-4 w-4" />
-                        <span>Requests</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/premium" className="cursor-pointer text-amber-500 focus:text-amber-600">
-                        <Sparkles className="mr-2 h-4 w-4" />
-                        <span>Premium</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logOutHandler} className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
-          ) : (
-            <div className="flex gap-2">
-              <Button variant="ghost" asChild>
-                <Link to="/login">Log in</Link>
-              </Button>
-              <Button asChild>
-                <Link to="/signup">Sign up</Link>
-              </Button>
-            </div>
-          )}
         </div>
-      </div>
-    </header>
+
+        {/* Links */}
+        <nav className="flex-1 px-4 space-y-3 mt-6">
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex items-center justify-center lg:justify-start gap-4 p-3.5 rounded-2xl transition-all group ${
+                  isActive 
+                    ? "bg-[#22d3ee]/10 text-[#22d3ee] border border-[#22d3ee]/20 shadow-[0_0_20px_rgba(34,211,238,0.1)]" 
+                    : "hover:bg-white/5 text-muted-foreground hover:text-white border border-transparent"
+                }`}
+              >
+                <item.icon className={`w-6 h-6 ${isActive ? "drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" : "group-hover:scale-110 transition-transform"}`} />
+                <span className={`font-semibold hidden lg:block ${isActive ? "text-[#22d3ee] drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]" : ""}`}>
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Logout Area */}
+        <div className="p-4 border-t border-white/5 mb-4">
+          <button 
+            onClick={handleLogout}
+            className="flex items-center justify-center lg:justify-start gap-4 w-full p-3.5 rounded-2xl text-muted-foreground hover:bg-red-500/10 hover:text-red-500 hover:border hover:border-red-500/20 transition-all group"
+          >
+            <LogOut className="w-6 h-6 group-hover:-translate-x-1 transition-transform" />
+            <span className="font-semibold hidden lg:block">Logout</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* --- MOBILE BOTTOM TABS --- */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-[4.5rem] bg-[#09090b]/90 backdrop-blur-2xl border-t border-white/5 flex items-center justify-around px-2 z-[100] pb-safe">
+        {navItems.map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex flex-col items-center justify-center w-full h-full transition-all relative ${
+                isActive ? "text-[#22d3ee]" : "text-muted-foreground hover:text-white/70"
+              }`}
+            >
+              <item.icon className={`w-6 h-6 mb-1 ${isActive ? "drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" : ""}`} />
+              <span className={`text-[10px] font-semibold ${isActive ? "text-[#22d3ee]" : ""}`}>
+                {item.label}
+              </span>
+              
+              {/* Active Dot Indicator */}
+              {isActive && (
+                <div className="absolute top-1 w-1.5 h-1.5 bg-[#22d3ee] rounded-full shadow-[0_0_10px_#22d3ee]" />
+              )}
+            </Link>
+          );
+        })}
+      </nav>
+    </>
   );
-}
+};
+
+export default Navbar;

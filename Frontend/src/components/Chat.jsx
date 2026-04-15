@@ -12,6 +12,7 @@ import createSocketConnection from "@/utils/socket";
 import api from "@/services/api";
 
 const Chat = () => {
+  const scrollContainerRef = useRef(null);
   //useRef
   const socketRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -116,7 +117,13 @@ const Chat = () => {
 
   // Auto-scroll to bottom when new messages arrive
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (scrollContainerRef.current) {
+      // This strictly targets the inner chat box so the page doesn't jump
+      scrollContainerRef.current.scrollTo({
+        top: scrollContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
   };
 
   useEffect(() => {
@@ -203,154 +210,159 @@ const Chat = () => {
   }
 
   return (
-    <Card className="flex flex-col w-full max-w-4xl mx-auto h-[80vh] sm:h-[85vh] overflow-hidden border-border/50 shadow-lg relative">
-      {/* Chat Header */}
-      <div className="flex items-center justify-between p-4 border-b bg-muted/30 backdrop-blur-md sticky top-0 z-10">
+    <div className="flex flex-col h-[calc(100dvh-5rem)] md:h-[calc(100dvh-2rem)] w-full max-w-3xl mx-auto bg-background relative md:border-x md:border-white/10 shadow-2xl overflow-hidden md:mt-4 md:rounded-t-[2.5rem]">
+      {/* --- STICKY HEADER --- */}
+      <div className="sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-background/80 backdrop-blur-xl border-b border-white/5">
         <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="sm:hidden mr-1"
-            onClick={() => navigate("/connections")}
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2 -ml-2 rounded-full hover:bg-white/10 text-white transition-colors"
           >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <Avatar className="w-10 h-10 border">
-            <AvatarImage
-              src={currentUser.photoUrl}
-              alt={currentUser.firstName}
-              className="object-cover"
-            />
-            <AvatarFallback>{currentUser.firstName?.charAt(0)}</AvatarFallback>
-          </Avatar>
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+
+          <div className="relative">
+            <Avatar className="w-10 h-10 border border-white/20">
+              <AvatarImage
+                src={currentUser?.photoUrl}
+                className="object-cover"
+              />
+              <AvatarFallback className="text-black bg-[#22d3ee] font-bold">
+                {currentUser?.firstName?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            {isOnline && (
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-background rounded-full shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
+            )}
+          </div>
+
           <div className="flex flex-col">
-            <span className="font-semibold leading-none">
-              {currentUser.firstName} {currentUser.lastName}
-            </span>
-            <span className="text-xs text-green-500 font-medium mt-1 flex items-center gap-1">
+            <h2 className="text-base font-bold text-white leading-tight">
+              {currentUser?.firstName} {currentUser?.lastName}
+            </h2>
+            <span className="text-xs font-medium text-[#22d3ee]">
               {isTyping ? (
                 <span>Typing...</span>
               ) : isOnline ? (
-                <span className="text-green-500">Online</span>
+                <span>Online</span>
               ) : lastSeen ? (
                 <span>Last seen {new Date(lastSeen).toLocaleTimeString()}</span>
               ) : (
                 <span>Offline</span>
               )}
             </span>
-            {/* {isTyping && (
-              <p className="text-sm text-gray-400 px-2">typing...</p>
-            )} */}
           </div>
         </div>
 
-        <div className="flex items-center gap-1 sm:gap-2 text-muted-foreground">
+        <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-full hover:text-primary"
+            className="text-muted-foreground hover:text-[#22d3ee] rounded-full hidden sm:flex"
           >
             <Phone className="w-5 h-5" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-full hover:text-primary"
+            className="text-muted-foreground hover:text-[#22d3ee] rounded-full hidden sm:flex"
           >
             <Video className="w-5 h-5" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-full hidden sm:flex"
+            className="text-muted-foreground hover:text-white rounded-full"
           >
             <Info className="w-5 h-5" />
           </Button>
         </div>
       </div>
 
-      {/* Message Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background/50">
-        <div className="text-center py-4">
-          <p className="text-xs text-muted-foreground bg-muted inline-block px-3 py-1 rounded-full">
-            You matched with {currentUser.firstName} on{" "}
-            {new Date().toLocaleDateString()}
-          </p>
-        </div>
-
+      {/* --- MESSAGE AREA --- */}
+      {/* We added the ref here and removed scroll-smooth */}
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar"
+      >
+        {" "}
         <AnimatePresence initial={false}>
           {messages.map((msg, index) => {
-            const isMe = msg.senderId === userId;
-            // const isMe = true;
+            // Checks if the message belongs to the logged-in user
+            const isMe =
+              msg.senderId === userId || msg.senderId?._id === userId;
+
             return (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                className={`flex flex-col ${isMe ? "items-end" : "items-start"} max-w-full`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`flex w-full ${isMe ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`flex items-end gap-2 max-w-[80%] ${isMe ? "flex-row-reverse" : "flex-row"}`}
+                  className={`flex max-w-[75%] md:max-w-[65%] gap-2 ${isMe ? "flex-row-reverse" : "flex-row"}`}
                 >
-                  {!isMe && (
-                    <Avatar className="w-6 h-6 mb-1 hidden sm:block flex-shrink-0">
-                      <AvatarImage
-                        src={currentUser.photoUrl}
-                        className="object-cover"
-                      />
-                      <AvatarFallback className="text-[10px]">
-                        {currentUser.firstName?.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-
+                  {/* Bubble */}
                   <div
-                    className={`px-4 py-2.5 rounded-2xl text-sm ${
+                    className={`px-4 py-2.5 rounded-2xl text-[15px] leading-relaxed shadow-sm ${
                       isMe
-                        ? "bg-primary text-primary-foreground rounded-br-sm"
-                        : "bg-muted text-foreground rounded-bl-sm border border-border/50"
+                        ? "bg-gradient-to-br from-[#22d3ee] to-[#0284c7] text-white rounded-tr-sm shadow-[0_4px_15px_rgba(34,211,238,0.2)]"
+                        : "bg-white/10 text-white/90 border border-white/5 rounded-tl-sm backdrop-blur-sm"
                     }`}
                   >
-                    <p className="break-words leading-relaxed">{msg.text}</p>
+                    <p>{msg.text}</p>
                   </div>
                 </div>
-                {/*<span
-                  className={`text-[10px] text-muted-foreground mt-1 px-8 ${isMe ? "text-right" : "text-left"}`}
-                >
-                  {msg.timestamp}
-                </span>*/}
               </motion.div>
             );
           })}
         </AnimatePresence>
-        <div ref={messagesEndRef} />
+        {/* Typing Indicator */}
+        {isTyping && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex justify-start"
+          >
+            <div className="bg-white/5 border border-white/5 px-4 py-3 rounded-2xl rounded-tl-sm flex items-center gap-1 w-fit">
+              <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" />
+              <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce delay-75" />
+              <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce delay-150" />
+            </div>
+          </motion.div>
+        )}
+        <div ref={messagesEndRef} className="h-2" />
       </div>
 
-      {/* Input Form */}
-      <div className="p-3 sm:p-4 bg-background border-t">
+      {/* --- INPUT AREA --- */}
+      <div className="p-3 bg-background/90 backdrop-blur-md border-t border-white/5 z-20">
         <form
           onSubmit={handleSendMessage}
-          className="flex items-center gap-2 bg-muted/50 p-1 pl-4 rounded-full border focus-within:ring-1 focus-within:ring-primary/50 focus-within:border-primary transition-all"
+          className="flex items-center gap-2 bg-white/5 p-1.5 pl-4 rounded-full border border-white/10 focus-within:border-[#22d3ee]/50 focus-within:shadow-[0_0_15px_rgba(34,211,238,0.1)] transition-all"
         >
           <Input
             type="text"
             value={newMessage}
             onChange={handleTyping}
-            placeholder={`Message ${currentUser.firstName}...`}
-            className="flex-1 border-0 bg-transparent focus-visible:ring-0 shadow-none px-0 h-10"
+            placeholder={`Message ${currentUser?.firstName || ""}...`}
+            className="flex-1 border-0 bg-transparent focus-visible:ring-0 shadow-none px-0 h-10 text-white placeholder:text-muted-foreground"
             autoComplete="off"
           />
           <Button
             type="submit"
             size="icon"
             disabled={!newMessage.trim()}
-            className={`rounded-full h-10 w-10 transition-transform ${newMessage.trim() ? "scale-100" : "scale-90 opacity-50"}`}
+            className={`rounded-full h-10 w-10 shrink-0 transition-all duration-300 ${
+              newMessage.trim()
+                ? "bg-[#22d3ee] hover:bg-[#22d3ee]/80 text-black shadow-[0_0_15px_rgba(34,211,238,0.4)] scale-100"
+                : "bg-white/10 text-muted-foreground scale-90"
+            }`}
           >
             <Send className="w-4 h-4 ml-0.5" />
           </Button>
         </form>
       </div>
-    </Card>
+    </div>
   );
 };
 

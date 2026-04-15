@@ -1,22 +1,21 @@
 import { motion, useMotionValue, useTransform, useAnimation } from "framer-motion";
-import { Check, X, MapPin, Briefcase, Code2 } from "lucide-react";
+import { Check, X, Briefcase, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 const UserCard = ({ user, onAction }) => {
   const controls = useAnimation();
   const x = useMotionValue(0);
 
-  // Map the X drag distance to rotation (tilt) and opacity
-  const rotate = useTransform(x, [-200, 200], [-15, 15]);
+  // Smooth rotational physics
+  const rotate = useTransform(x, [-200, 200], [-10, 10]);
   const opacity = useTransform(x, [-300, -100, 0, 100, 300], [0, 1, 1, 1, 0]);
 
-  // Color overlays for visual feedback while dragging
+  // Vibrant Overlays
   const likeOpacity = useTransform(x, [10, 100], [0, 1]);
   const nopeOpacity = useTransform(x, [-10, -100], [0, 1]);
 
   const handleDragEnd = async (event, info) => {
-    const threshold = 100; // Drag distance required to trigger swipe
+    const threshold = 100;
     if (info.offset.x > threshold) {
       await controls.start({ x: 500, opacity: 0, transition: { duration: 0.3 } });
       onAction("interested", user._id);
@@ -24,95 +23,112 @@ const UserCard = ({ user, onAction }) => {
       await controls.start({ x: -500, opacity: 0, transition: { duration: 0.3 } });
       onAction("ignored", user._id);
     } else {
-      // Spring back to center if not dragged far enough
-      controls.start({ x: 0, transition: { type: "spring", stiffness: 300, damping: 20 } });
+      controls.start({ x: 0, transition: { type: "spring", stiffness: 300, damping: 22 } });
     }
   };
 
   const handleButtonSwipe = async (type) => {
     const direction = type === "interested" ? 500 : -500;
-    await controls.start({ x: direction, opacity: 0, rotate: type === "interested" ? 15 : -15, transition: { duration: 0.3 } });
+    await controls.start({ 
+      x: direction, 
+      opacity: 0, 
+      rotate: type === "interested" ? 10 : -10, 
+      transition: { duration: 0.3 } 
+    });
     onAction(type, user._id);
   };
 
   return (
     <motion.div
-      className="absolute w-full max-w-sm cursor-grab active:cursor-grabbing "
+      className="absolute inset-0 cursor-grab active:cursor-grabbing touch-none"
       style={{ x, rotate, opacity }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
       onDragEnd={handleDragEnd}
       animate={controls}
     >
-<div className="relative overflow-hidden rounded-3xl bg-card border border-border/50 shadow-2xl aspect-[3/4] backdrop-blur-xl transition-all duration-300 hover:shadow-[0_20px_60px_rgba(0,0,0,0.25)]">        {/* Swipe Feedback Overlays */}
-        <motion.div style={{ opacity: likeOpacity }} className="absolute top-8 left-8 z-20 border-4 border-green-500 rounded-lg px-4 py-1">
-          <p className="text-3xl font-bold text-green-500 uppercase tracking-wider">Like</p>
+      {/* The Container: Purely structural. No visible background. 
+        It relies entirely on the image and border for its shape.
+      */}
+      <div className="relative w-full h-full overflow-hidden rounded-[2.5rem] bg-black shadow-[0_10px_40px_rgba(0,0,0,0.5)] border-[0.5px] border-white/10 group">
+        
+        {/* Full Bleed Profile Image */}
+        <img
+          src={user.photoUrl || "https://github.com/shadcn.png"}
+          alt={user.firstName}
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          draggable="false"
+        />
+
+        {/* Heavy Gradient Overlay: 
+          Crucial for making white text readable over bright images 
+        */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-[#09090b]/60 to-transparent opacity-90 pointer-events-none" />
+
+        {/* Swipe Overlays */}
+        <motion.div style={{ opacity: likeOpacity }} className="absolute top-10 left-8 z-20 border-[3px] border-[#22d3ee] rounded-xl px-6 py-2 -rotate-12 pointer-events-none shadow-[0_0_30px_rgba(34,211,238,0.4)]">
+          <p className="text-4xl font-black text-[#22d3ee] uppercase tracking-widest drop-shadow-lg">Match</p>
         </motion.div>
-        <motion.div style={{ opacity: nopeOpacity }} className="absolute top-8 right-8 z-20 border-4 border-red-500 rounded-lg px-4 py-1">
-          <p className="text-3xl font-bold text-red-500 uppercase tracking-wider">Nope</p>
+        <motion.div style={{ opacity: nopeOpacity }} className="absolute top-10 right-8 z-20 border-[3px] border-[#ef4444] rounded-xl px-6 py-2 rotate-12 pointer-events-none shadow-[0_0_30px_rgba(239,68,68,0.4)]">
+          <p className="text-4xl font-black text-[#ef4444] uppercase tracking-widest drop-shadow-lg">Skip</p>
         </motion.div>
 
-        {/* Profile Image with Gradient Fade */}
-        <div className="absolute inset-0 z-0">
-          <motion.img
-  src={user.photoUrl || "https://github.com/shadcn.png"}
-  alt={user.firstName}
-  className="w-full h-full object-cover"
-  draggable="false"
-  whileHover={{ scale: 1.05 }}
-  transition={{ duration: 0.4 }}
-/>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-        </div>
-
-        {/* User Info Content */}
-        <div className="absolute bottom-0 z-10 w-full p-6 text-white">
-          <h2 className="text-3xl font-bold mb-1">
-            {user.firstName} {user.lastName} <span className="text-xl font-normal text-white/80">{user.age}</span>
-          </h2>
+        {/* Content Wrapper - Pushed to the bottom */}
+        <div className="absolute bottom-0 z-10 w-full p-6 pb-8 flex flex-col justify-end text-white">
           
-          <div className="space-y-2 mb-4">
-            {user.about && <p className="text-sm text-white/90 line-clamp-2">{user.about}</p>}
-            
-            <div className="flex items-center gap-2 text-sm text-white/80">
-              <Briefcase className="w-4 h-4" />
-              <span>{user.jobTitle || "Software Engineer"}</span>
-            </div>
+          {/* Header */}
+          <div className="flex items-end gap-3 mb-2">
+            <h2 className="text-4xl font-bold tracking-tight drop-shadow-md">
+              {user.firstName}
+            </h2>
+            <span className="text-2xl font-medium text-white/70 pb-[3px] drop-shadow-md">{user.age}</span>
+          </div>
+          
+          {/* Job / Status */}
+          <div className="flex items-center gap-2 text-[15px] text-[#22d3ee] mb-4 font-medium drop-shadow-md">
+            <Briefcase className="w-4 h-4" />
+            <span>{user.jobTitle || "Software Engineer"}</span>
           </div>
 
-          {/* Skills Tags */}
+          {/* About */}
+          {user.about && (
+            <p className="text-sm text-white/80 line-clamp-2 leading-relaxed mb-5 font-light">
+              {user.about}
+            </p>
+          )}
+
+          {/* Pill-shaped Skills (No more blocky badges) */}
           {user.skills && user.skills.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex flex-wrap gap-2 mb-6">
               {user.skills.slice(0, 3).map((skill, index) => (
-                <Badge key={index} variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-none">
+                <div key={index} className="px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-xs font-medium tracking-wide flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-[#22d3ee]" />
                   {skill}
-                </Badge>
+                </div>
               ))}
               {user.skills.length > 3 && (
-                <Badge variant="secondary" className="bg-white/10 text-white/70 border-none">
+                <div className="px-3 py-1.5 rounded-full bg-white/5 backdrop-blur-md text-white/50 text-xs font-medium tracking-wide">
                   +{user.skills.length - 3}
-                </Badge>
+                </div>
               )}
             </div>
           )}
 
-          {/* Action Buttons */}
-          <div className="flex justify-center gap-6 mt-4 pt-4 border-t border-white/20">
+          {/* Modern Action Buttons */}
+          <div className="flex justify-center gap-6 pt-2">
             <Button 
               size="icon" 
-              variant="outline" 
-              className="h-14 w-14 rounded-full border-red-500 text-red-500 bg-black/50 hover:bg-red-500 hover:text-white transition-all"
+              className="h-16 w-16 rounded-full border border-[#ef4444]/30 text-[#ef4444] bg-black/40 backdrop-blur-xl hover:bg-[#ef4444] hover:text-white hover:border-[#ef4444] transition-all shadow-lg hover:shadow-[0_0_20px_rgba(239,68,68,0.5)] hover:scale-105"
               onClick={() => handleButtonSwipe("ignored")}
             >
-              <X className="w-6 h-6" />
+              <X className="w-8 h-8 stroke-[2.5px]" />
             </Button>
             <Button 
               size="icon" 
-              variant="outline" 
-              className="h-14 w-14 rounded-full border-green-500 text-green-500 bg-black/50 hover:bg-green-500 hover:text-white transition-all"
+              className="h-16 w-16 rounded-full border border-[#22d3ee]/30 text-[#22d3ee] bg-black/40 backdrop-blur-xl hover:bg-[#22d3ee] hover:text-black hover:border-[#22d3ee] transition-all shadow-lg hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] hover:scale-105"
               onClick={() => handleButtonSwipe("interested")}
             >
-              <Check className="w-6 h-6" />
+              <Check className="w-8 h-8 stroke-[3px]" />
             </Button>
           </div>
         </div>

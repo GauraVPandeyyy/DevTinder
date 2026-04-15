@@ -8,8 +8,8 @@ import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Profile from "./components/Profile";
 import Feed from "./components/Feed";
-import { Connections } from "./components/Connections";
-import { ConnectionRequest } from "./components/ConnectionRequest";
+import Connections  from "./components/Connections";
+import {ConnectionRequest} from "./components/ConnectionRequest";
 import Premium from "./components/Premium";
 import Chat from "./components/Chat";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -18,46 +18,33 @@ const App = () => {
   return (
     <Provider store={store}>
       <Toaster
-  position="top-center"
-  gutter={12}
-  containerStyle={{
-    top: 20,
-  }}
-  toastOptions={{
-    duration: 4000,
-    style: {
-      background: "hsl(var(--background))",
-      color: "hsl(var(--foreground))",
-      border: "1px solid hsl(var(--border))",
-      padding: "12px 16px",
-      borderRadius: "12px",
-      boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-      fontSize: "14px",
-    },
-
-    success: {
-      iconTheme: {
-        primary: "#22c55e",
-        secondary: "white",
-      },
-      style: {
-        border: "1px solid rgba(34,197,94,0.3)",
-        background: "rgba(34,197,94,0.08)",
-      },
-    },
-
-    error: {
-      iconTheme: {
-        primary: "#ef4444",
-        secondary: "white",
-      },
-      style: {
-        border: "1px solid rgba(239,68,68,0.3)",
-        background: "rgba(239,68,68,0.08)",
-      },
-    },
-  }}
-/>
+        position="bottom-center"
+        toastOptions={{
+          className: "",
+          style: {
+            background: "#09090b", // Matches our dark background
+            color: "#fff",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            borderRadius: "9999px", // Sleek pill shape
+            padding: "12px 24px",
+            boxShadow: "0 4px 20px rgba(34, 211, 238, 0.15)", // Subtle Cyan Glow
+            fontSize: "14px",
+            fontWeight: "500",
+          },
+          success: {
+            iconTheme: {
+              primary: "#22d3ee", // Cyan success icon
+              secondary: "#09090b",
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: "#ef4444", // Red error icon
+              secondary: "#fff",
+            },
+          },
+        }}
+      />
       <BrowserRouter>
         <Routes>
           {/* Public Routes - No Navbar, No Auth Checks */}
@@ -66,7 +53,6 @@ const App = () => {
 
           {/* App Layout - Includes Navbar and Footer */}
           <Route path="/" element={<Index />}>
-            
             {/* Protected Routes - Must be logged in */}
             <Route element={<ProtectedRoute />}>
               <Route path="/" element={<Feed />} />
@@ -76,7 +62,6 @@ const App = () => {
               <Route path="/premium" element={<Premium />} />
               <Route path="/chat/:targetUserId" element={<Chat />} />
             </Route>
-
           </Route>
         </Routes>
       </BrowserRouter>

@@ -1,232 +1,274 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Loader2, Briefcase, User as UserIcon } from "lucide-react";
+import { motion } from "framer-motion";
+import { Loader2, Briefcase, Image as ImageIcon, Sparkles } from "lucide-react";
 import api from "@/services/api";
 import toast from "react-hot-toast";
 import { setUser } from "@/store/userSlice";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 
 const EditProfile = ({ user }) => {
   const dispatch = useDispatch();
   
-  // Unified State for cleaner code
   const [formData, setFormData] = useState({
     firstName: user?.firstName || "",
     lastName: user?.lastName || "",
     age: user?.age || "",
     gender: user?.gender || "",
     about: user?.about || "",
-    photoUrl: user?.photoUrl || "",
+    jobTitle: user?.jobTitle || "",
+    profileImage: null, // Actual file object send karne ke liye
   });
 
-  const [error, setError] = useState("");
+  const [previewImage, setPreviewImage] = useState(user?.photoUrl || "");
   const [isLoading, setIsLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({}); // Field-level errors store karne ke liye
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError("");
-  };
-
-  const handleGenderChange = (value) => {
-    setFormData({ ...formData, gender: value });
-    setError("");
-  };
-
-  const editHandler = async (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
+    setFieldErrors({}); // Reset old errors
 
     try {
+      // NOTE: Agar image file send kar rahe hain toh aapko shayed 
+      // FormData object banana pade backend ke hisab se. 
+      // Filhal main aapka existing formData state pass kar raha hu.
       const res = await api.patch("/profile/edit", formData);
-      dispatch(setUser(res.data.data || res.data));
+      dispatch(setUser(res.data.data || res.data.user || res.data));
       toast.success("Profile updated successfully! ✨");
     } catch (error) {
-      const errData = error?.response?.data;
-      setError(
-        errData?.message || errData?.errors?.[0]?.msg || "Failed to update profile."
-      );
+      const errData = error.response?.data;
+      
+      // Handle array of errors based on your JSON format
+      if (errData?.errors && Array.isArray(errData.errors)) {
+        const newErrors = {};
+        errData.errors.forEach((err) => {
+          // Ek field ke liye pehla error message hi rakhenge
+          if (!newErrors[err.path]) {
+            newErrors[err.path] = err.msg;
+          }
+        });
+        setFieldErrors(newErrors);
+        toast.error("Please fix the errors highlighted below.");
+      } else {
+        // Fallback for general errors
+        toast.error(errData?.message || "Failed to update profile");
+      }
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Remove error when user starts typing
+    if (fieldErrors[e.target.name]) {
+      setFieldErrors({ ...fieldErrors, [e.target.name]: null });
+    }
+  };
+
+  const handleGenderChange = (value) => {
+    setFormData({ ...formData, gender: value });
+    if (fieldErrors.gender) setFieldErrors({ ...fieldErrors, gender: null });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({ ...formData, profileImage: file }); // API ke liye file store kar rahe hain
+      setPreviewImage(URL.createObjectURL(file)); // Live preview ke liye local URL
+    }
+  };
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-      {/* LEFT COLUMN: EDIT FORM */}
-      <Card className="border-border/50 shadow-lg">
-        <CardHeader>
-          <CardTitle>Edit Details</CardTitle>
-          <CardDescription>Make changes to your profile here. Click save when you're done.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form id="profile-form" onSubmit={editHandler} className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
+      
+      {/* --- LEFT: LIVE PREVIEW CARD --- */}
+      <div className="lg:col-span-5 lg:sticky lg:top-24 flex flex-col items-center">
+        <h3 className="text-sm font-semibold text-[#22d3ee] uppercase tracking-widest mb-4 flex items-center gap-2">
+          <Sparkles className="w-4 h-4" /> Live Preview
+        </h3>
+        
+        <div className="relative w-full max-w-[320px] aspect-[3/4] overflow-hidden rounded-[2rem] bg-black shadow-[0_10px_40px_rgba(34,211,238,0.1)] border-[0.5px] border-white/10">
+          <img
+            src={previewImage || "https://github.com/shadcn.png"}
+            alt="Preview"
+            className="absolute inset-0 w-full h-full object-cover transition-all duration-500"
+            onError={(e) => { e.target.src = "https://github.com/shadcn.png" }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-[#09090b]/60 to-transparent opacity-90" />
+          
+          <div className="absolute bottom-0 z-10 w-full p-5 pb-6 flex flex-col justify-end text-white">
+            <div className="flex items-end gap-2 mb-1">
+              <h2 className="text-2xl font-bold tracking-tight drop-shadow-md truncate">
+                {formData.firstName || "First"} {formData.lastName || " "}
+              </h2>
+              <span className="text-xl font-medium text-white/70 pb-[2px]">{formData.age || "25"}</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-[#22d3ee] mb-3 font-medium">
+              <Briefcase className="w-3.5 h-3.5" />
+              <span className="truncate">{formData.jobTitle || "Software Engineer"}</span>
+            </div>
+            <p className="text-xs text-white/80 line-clamp-2 leading-relaxed font-light">
+              {formData.about || "Your amazing bio will appear here..."}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* --- RIGHT: SETTINGS FORM --- */}
+      <div className="lg:col-span-7">
+        <form onSubmit={handleSave} className="space-y-6 bg-white/[0.02] border border-white/5 p-6 md:p-8 rounded-[2rem] shadow-2xl backdrop-blur-sm">
+          
+          {/* Media Section */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-white border-b border-white/10 pb-2">Media</h3>
+            <div className="space-y-2">
+              <Label className="text-white/70">Upload Profile Photo</Label>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="bg-black/40 border-white/10 text-white file:text-[#22d3ee] file:bg-transparent file:border-0 file:mr-4 file:font-medium hover:file:cursor-pointer cursor-pointer rounded-xl h-12 pt-2.5"
+              />
+              {fieldErrors.photoUrl && <p className="text-xs text-red-500 font-medium">{fieldErrors.photoUrl}</p>}
+            </div>
+          </div>
+
+          {/* Personal Info Section */}
+          <div className="space-y-4 pt-4">
+            <h3 className="text-xl font-bold text-white border-b border-white/10 pb-2">Personal Info</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              
               <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
+                <Label className="text-white/70">First Name</Label>
                 <Input
-                  id="firstName"
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  placeholder="Tony"
-                  required
+                  className={`bg-black/40 text-white rounded-xl h-12 transition-all ${
+                    fieldErrors.firstName 
+                      ? "border-red-500 focus-visible:ring-red-500" 
+                      : "border-white/10 focus-visible:ring-[#22d3ee]"
+                  }`}
                 />
+                {fieldErrors.firstName && <p className="text-xs text-red-500 font-medium">{fieldErrors.firstName}</p>}
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
+                <Label className="text-white/70">Last Name</Label>
                 <Input
-                  id="lastName"
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  placeholder="Stark"
+                  className={`bg-black/40 text-white rounded-xl h-12 transition-all ${
+                    fieldErrors.lastName 
+                      ? "border-red-500 focus-visible:ring-red-500" 
+                      : "border-white/10 focus-visible:ring-[#22d3ee]"
+                  }`}
                 />
+                {fieldErrors.lastName && <p className="text-xs text-red-500 font-medium">{fieldErrors.lastName}</p>}
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="age">Age</Label>
+                <Label className="text-white/70">Age</Label>
                 <Input
-                  id="age"
                   name="age"
                   type="number"
                   value={formData.age}
                   onChange={handleChange}
-                  placeholder="25"
-                  min="18"
-                  max="100"
+                  className={`bg-black/40 text-white rounded-xl h-12 transition-all ${
+                    fieldErrors.age 
+                      ? "border-red-500 focus-visible:ring-red-500" 
+                      : "border-white/10 focus-visible:ring-[#22d3ee]"
+                  }`}
                 />
+                {fieldErrors.age && <p className="text-xs text-red-500 font-medium">{fieldErrors.age}</p>}
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="gender">Gender</Label>
-                <Select value={formData.gender} onValueChange={handleGenderChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select gender" />
+                <Label className="text-white/70">Gender</Label>
+                <Select onValueChange={handleGenderChange} value={formData.gender}>
+                  <SelectTrigger className={`bg-black/40 text-white rounded-xl h-12 transition-all ${
+                    fieldErrors.gender 
+                      ? "border-red-500 ring-1 ring-red-500" 
+                      : "border-white/10 focus:ring-1 focus:ring-[#22d3ee]"
+                  }`}>
+                    <SelectValue placeholder="Select Gender" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Gender</SelectLabel>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="others">Others</SelectItem>
-                    </SelectGroup>
+                  <SelectContent className="bg-[#09090b] border-white/10 text-white">
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
+                {fieldErrors.gender && <p className="text-xs text-red-500 font-medium">{fieldErrors.gender}</p>}
               </div>
-            </div>
 
+            </div>
+          </div>
+
+          {/* Professional Section */}
+          <div className="space-y-4 pt-4">
+            <h3 className="text-xl font-bold text-white border-b border-white/10 pb-2">Professional</h3>
+            
             <div className="space-y-2">
-              <Label htmlFor="photoUrl">Photo URL</Label>
+              <Label className="text-white/70">Job Title</Label>
               <Input
-                id="photoUrl"
-                name="photoUrl"
-                type="url"
-                value={formData.photoUrl}
+                name="jobTitle"
+                value={formData.jobTitle}
                 onChange={handleChange}
-                placeholder="https://example.com/photo.jpg"
+                placeholder="e.g., Full Stack Developer"
+                className={`bg-black/40 text-white rounded-xl h-12 transition-all ${
+                  fieldErrors.jobTitle 
+                    ? "border-red-500 focus-visible:ring-red-500" 
+                    : "border-white/10 focus-visible:ring-[#22d3ee]"
+                }`}
               />
+              {fieldErrors.jobTitle && <p className="text-xs text-red-500 font-medium">{fieldErrors.jobTitle}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="about">About Me</Label>
+              <Label className="text-white/70">About You</Label>
               <Textarea
-                id="about"
                 name="about"
                 value={formData.about}
                 onChange={handleChange}
-                placeholder="I love building scalable apps using React and Node.js..."
-                className="resize-none h-24"
+                placeholder="Write a short bio about your tech stack and interests..."
+                className={`bg-black/40 text-white rounded-xl min-h-[120px] resize-none transition-all ${
+                  fieldErrors.about 
+                    ? "border-red-500 focus-visible:ring-red-500" 
+                    : "border-white/10 focus-visible:ring-[#22d3ee]"
+                }`}
               />
+              {fieldErrors.about && <p className="text-xs text-red-500 font-medium">{fieldErrors.about}</p>}
             </div>
-
-            {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-          </form>
-        </CardContent>
-        <CardFooter className="border-t bg-muted/20 px-6 py-4">
-          <Button
-            type="submit"
-            form="profile-form"
-            className="w-full sm:w-auto ml-auto"
-            disabled={isLoading}
-          >
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Save Changes
-          </Button>
-        </CardFooter>
-      </Card>
-
-      {/* RIGHT COLUMN: LIVE PREVIEW */}
-      <div className="flex flex-col items-center justify-start lg:sticky lg:top-24">
-        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4">
-          Live Preview
-        </h3>
-        
-        {/* Static Preview Card (Mirrors UserCard visuals, no physics) */}
-        <div className="relative w-full max-w-sm overflow-hidden rounded-3xl bg-card border shadow-xl aspect-[3/4] transition-all duration-300">
-          <div className="absolute inset-0 z-0">
-            {formData.photoUrl ? (
-              <img 
-                src={formData.photoUrl} 
-                alt="Profile Preview" 
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-muted flex items-center justify-center">
-                <UserIcon className="w-20 h-20 text-muted-foreground/30" />
-              </div>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
           </div>
 
-          <div className="absolute bottom-0 z-10 w-full p-6 text-white">
-            <h2 className="text-3xl font-bold mb-1 drop-shadow-md">
-              {formData.firstName || "First"}{" "}
-              {formData.lastName || "Last"}{" "}
-              {formData.age && <span className="text-xl font-normal text-white/80">{formData.age}</span>}
-            </h2>
-            
-            <div className="space-y-3 mb-4">
-              <p className="text-sm text-white/90 line-clamp-3 min-h-[1.25rem]">
-                {formData.about || "Your bio will appear here..."}
-              </p>
-              
-              <div className="flex items-center gap-2 text-sm text-white/80">
-                <Briefcase className="w-4 h-4" />
-                <span>{user?.jobTitle || "Software Engineer"}</span>
-              </div>
-            </div>
-
-            <div className="flex justify-center gap-4 mt-4 pt-4 border-t border-white/20">
-              {/* Dummy buttons to complete the visual preview */}
-              <div className="h-12 w-12 rounded-full border-2 border-white/20 bg-black/20" />
-              <div className="h-12 w-12 rounded-full border-2 border-white/20 bg-black/20" />
-            </div>
+          {/* Static Save Button (No longer floating) */}
+          <div className="mt-8 pt-4">
+            <Button 
+              type="submit" 
+              disabled={isLoading}
+              className="w-full h-14 text-lg font-bold rounded-2xl bg-gradient-to-r from-[#22d3ee] to-[#0284c7] text-white shadow-[0_10px_30px_rgba(34,211,238,0.2)] hover:shadow-[0_10px_40px_rgba(34,211,238,0.4)] hover:scale-[1.01] transition-all"
+            >
+              {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : "Save Profile"}
+            </Button>
           </div>
-        </div>
+
+        </form>
       </div>
     </div>
   );
