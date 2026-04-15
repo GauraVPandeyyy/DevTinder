@@ -25,6 +25,7 @@ const Chat = () => {
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [chatUser, setChatUser] = useState(null);
   const currentUser = useSelector((state) =>
     state.connections?.find((conn) => conn._id === targetUserId),
   );
@@ -87,12 +88,20 @@ const Chat = () => {
   const fetchMessages = async () => {
     try {
       const response = await api.get(`/chat/${targetUserId}`);
-      // console.log("Fetched messages:", response.data);
-      let chatMessages = response.data.messages.map((msg) => ({
+      const chat = response.data;
+      console.log(chat);
+
+      //  set chat user
+      const otherUser = chat.participants.find((p) => p._id !== userId);
+      setChatUser(otherUser);
+
+      // messages
+      let chatMessages = chat.messages.map((msg) => ({
         firstName: msg.senderId.firstName,
         senderId: msg.senderId._id,
         text: msg.text,
       }));
+
       setMessages(chatMessages);
     } catch (error) {
       console.error("Failed to fetch messages:", error);
@@ -153,35 +162,6 @@ const Chat = () => {
     }, 1000);
   };
 
-  // useEffect(() => {
-  //   if (!socketRef.current) return;
-
-  //   socketRef.current.on("userOnline", ({ userId }) => {
-  //     if (userId === targetUserId) {
-  //       setIsOnline(true);
-  //     }
-  //   });
-
-  //   socketRef.current.on("userOffline", ({ userId, lastSeen }) => {
-  //     if (userId === targetUserId) {
-  //       setIsOnline(false);
-  //       setLastSeen(lastSeen);
-  //     }
-  //   });
-
-  //   socketRef.current.on("userTyping", () => {
-  //     setIsTyping(true);
-  //   });
-
-  //   socketRef.current.on("userStoppedTyping", () => {
-  //     setIsTyping(false);
-  //   });
-
-  //   return () => {
-  //     socketRef.current.off("userTyping");
-  //     socketRef.current.off("userStoppedTyping");
-  //   };
-  // }, []);
   const handleSendMessage = (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
@@ -196,15 +176,15 @@ const Chat = () => {
     setNewMessage("");
   };
 
-  if (!currentUser) {
+  if (!chatUser) {
     return (
       <div className="flex flex-col items-center justify-center h-[70vh] space-y-4">
         <p className="text-xl font-medium text-muted-foreground">
-          User not found or not connected.
+          Loading chat...
         </p>
-        <Button onClick={() => navigate("/connections")} variant="outline">
+        {/* <Button onClick={() => navigate("/connections")} variant="outline">
           Back to Connections
-        </Button>
+        </Button> */}
       </div>
     );
   }
@@ -213,7 +193,10 @@ const Chat = () => {
     <div className="flex flex-col h-[calc(100dvh-5rem)] md:h-[calc(100dvh-2rem)] w-full max-w-3xl mx-auto bg-background relative md:border-x md:border-white/10 shadow-2xl overflow-hidden md:mt-4 md:rounded-t-[2.5rem]">
       {/* --- STICKY HEADER --- */}
       <div className="sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-background/80 backdrop-blur-xl border-b border-white/5">
-        <div className="flex items-center gap-3">
+        <div
+          className="flex items-center gap-3 cursor-pointer"
+          onClick={() => navigate(`/user/${chatUser._id}`)}
+        >
           <button
             onClick={() => navigate(-1)}
             className="p-2 -ml-2 rounded-full hover:bg-white/10 text-white transition-colors"
@@ -223,12 +206,9 @@ const Chat = () => {
 
           <div className="relative">
             <Avatar className="w-10 h-10 border border-white/20">
-              <AvatarImage
-                src={currentUser?.photoUrl}
-                className="object-cover"
-              />
+              <AvatarImage src={chatUser?.photoUrl} className="object-cover" />
               <AvatarFallback className="text-black bg-[#22d3ee] font-bold">
-                {currentUser?.firstName?.charAt(0)}
+                {chatUser?.firstName?.charAt(0)}
               </AvatarFallback>
             </Avatar>
             {isOnline && (
@@ -238,7 +218,7 @@ const Chat = () => {
 
           <div className="flex flex-col">
             <h2 className="text-base font-bold text-white leading-tight">
-              {currentUser?.firstName} {currentUser?.lastName}
+              {chatUser?.firstName} {chatUser?.lastName}
             </h2>
             <span className="text-xs font-medium text-[#22d3ee]">
               {isTyping ? (
@@ -344,7 +324,7 @@ const Chat = () => {
             type="text"
             value={newMessage}
             onChange={handleTyping}
-            placeholder={`Message ${currentUser?.firstName || ""}...`}
+            placeholder={`Message ${chatUser?.firstName || ""}...`}
             className="flex-1 border-0 bg-transparent focus-visible:ring-0 shadow-none px-0 h-10 text-white placeholder:text-muted-foreground"
             autoComplete="off"
           />

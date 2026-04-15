@@ -13,6 +13,7 @@ import {ConnectionRequest} from "./components/ConnectionRequest";
 import Premium from "./components/Premium";
 import Chat from "./components/Chat";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ChatUserProfile from "./components/ChatUserProfile";
 
 const App = () => {
   return (
@@ -61,6 +62,7 @@ const App = () => {
               <Route path="/requests" element={<ConnectionRequest />} />
               <Route path="/premium" element={<Premium />} />
               <Route path="/chat/:targetUserId" element={<Chat />} />
+              <Route path="/user/:id" element={<ChatUserProfile />} />
             </Route>
           </Route>
         </Routes>
