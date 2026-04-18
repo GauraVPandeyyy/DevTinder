@@ -4,7 +4,7 @@ import {
   useTransform,
   useAnimation,
 } from "framer-motion";
-import { Check, X, Briefcase, Sparkles } from "lucide-react";
+import { Check, X, Briefcase, Sparkles, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import api from "@/services/api";
 
@@ -164,25 +164,25 @@ const UserCard = ({ user, onAction }) => {
             {/* PASS */}
             <button
               onClick={() => handleButtonSwipe("pass")}
-              className="px-4 py-2 bg-red-500 text-white rounded"
+              className="flex items-center justify-center w-14 h-14 rounded-full border border-red-500/50 bg-black/40 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg hover:scale-110"
             >
-              Nope
+              <X className="w-8 h-8 stroke-[2px]" />
             </button>
 
             {/* SKIP */}
             <button
               onClick={() => handleButtonSwipe("skip")}
-              className="px-4 py-2 bg-yellow-500 text-white rounded"
+              className="flex items-center justify-center w-12 h-12 mt-1 rounded-full border border-yellow-500/50 bg-black/40 text-yellow-500 hover:bg-yellow-500 hover:text-white transition-all shadow-lg hover:scale-110"
             >
-              Skip
+              <ChevronDown className="w-6 h-6 stroke-[2px]" />
             </button>
 
             {/* LIKE */}
             <button
               onClick={() => handleButtonSwipe("like")}
-              className="px-4 py-2 bg-green-500 text-white rounded"
+              className="flex items-center justify-center w-14 h-14 rounded-full border border-green-500/50 bg-black/40 text-green-500 hover:bg-green-500 hover:text-white transition-all shadow-lg hover:scale-110"
             >
-              Like
+              <Check className="w-8 h-8 stroke-[3px]" />
             </button>
           </div>
         </div>
