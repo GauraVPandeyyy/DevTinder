@@ -80,7 +80,7 @@ const Feed = () => {
 
   return (
     <>
-      <div className="flex w-full h-[100vh] items-center justify-center relative overflow-hidden bg-background">
+      <div className="flex w-full h-[calc(100dvh-5rem)] items-center justify-center relative overflow-hidden bg-background">
         <div className="relative w-full max-w-[360px] md:max-w-sm aspect-[3/4]">
           {[...feed].reverse().map((user) => (
             <UserCard
@@ -92,7 +92,10 @@ const Feed = () => {
           ))}
         </div>
       </div>
+      <div className="mt-10">
       <Footer />
+
+      </div>
     </>
   );
 };
