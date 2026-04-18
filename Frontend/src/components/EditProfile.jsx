@@ -18,6 +18,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const allSkills = [
+  "React",
+  "Next.js",
+  "Node.js",
+  "Express",
+  "MongoDB",
+  "Tailwind",
+  "JavaScript",
+  "TypeScript",
+  "Python",
+  "C++",
+  "Java",
+];
+
 const EditProfile = ({ user }) => {
   const dispatch = useDispatch();
 
@@ -28,6 +42,7 @@ const EditProfile = ({ user }) => {
     gender: user?.gender || "",
     about: user?.about || "",
     jobTitle: user?.jobTitle || "",
+    skills: user?.skills || [],
     profileImage: null, // Actual file object send karne ke liye
   });
 
@@ -41,10 +56,18 @@ const EditProfile = ({ user }) => {
     setFieldErrors({}); // Reset old errors
 
     try {
+      if (formData.skills.length < 2) {
+        toast.error("Add at least 2 skills");
+        return;
+      }
       const form = new FormData();
 
       Object.keys(formData).forEach((key) => {
-        if (formData[key] !== null) {
+        if (key === "skills") {
+          formData.skills.forEach((skill) => {
+            form.append("skills[]", skill);
+          });
+        } else if (formData[key] !== null) {
           form.append(key, formData[key]);
         }
       });
@@ -59,8 +82,9 @@ const EditProfile = ({ user }) => {
       if (errData?.errors && Array.isArray(errData.errors)) {
         const newErrors = {};
         errData.errors.forEach((err) => {
-          // Ek field ke liye pehla error message hi rakhenge
-          if (!newErrors[err.path]) {
+          if (err.path.startsWith("skills")) {
+            newErrors.skills = err.msg; // 👈 normalize
+          } else {
             newErrors[err.path] = err.msg;
           }
         });
@@ -303,6 +327,81 @@ const EditProfile = ({ user }) => {
                   {fieldErrors.about}
                 </p>
               )}
+            </div>
+
+            <div className="space-y-4 pt-4">
+              <h3 className="text-xl font-bold text-white border-b border-white/10 pb-2">
+                Skills
+              </h3>
+
+              {/* Selected Skills */}
+              <div className="flex flex-wrap gap-2">
+                {formData.skills.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="px-3 py-1 bg-[#22d3ee]/20 text-[#22d3ee] rounded-full text-sm flex items-center gap-2"
+                  >
+                    {skill}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          skills: formData.skills.filter((s) => s !== skill),
+                        })
+                      }
+                    >
+                      ✕
+                    </button>
+                  </span>
+                ))}
+              </div>
+              {fieldErrors.skills && (
+                <p className="text-sm text-red-500 font-medium">
+                  {fieldErrors.skills}
+                </p>
+              )}
+
+              {/* Dropdown */}
+              <select
+                className="w-full bg-black/40 text-white p-3 rounded-xl"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value && !formData.skills.includes(value)) {
+                    setFormData({
+                      ...formData,
+                      skills: [...formData.skills, value],
+                    });
+                  }
+                }}
+              >
+                <option value="">Select Skill</option>
+                {allSkills.map((skill) => (
+                  <option key={skill} value={skill}>
+                    {skill}
+                  </option>
+                ))}
+              </select>
+
+              {/* Custom Skill */}
+              <input
+                type="text"
+                placeholder="Add custom skill"
+                className="w-full bg-black/40 text-white p-3 rounded-xl"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    const value = e.target.value.trim().toLowerCase();
+                    if (value && !formData.skills.includes(value)) {
+                      setFormData({
+                        ...formData,
+                        skills: [...formData.skills, value],
+                      });
+                      e.target.value = "";
+                    }
+                  }
+                }}
+              />
             </div>
           </div>
 

@@ -4,12 +4,12 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Loader2, MessageSquare, Users } from "lucide-react";
 import api from "@/services/api";
-import { setConnections } from "@/store/connectionSlice";
+import { setMatches } from "@/store/matchesSlice";
 import createSocketConnection from "@/utils/socket";
 
-const Connections = () => {
+const Matches = () => {
   const dispatch = useDispatch();
-  const connections = useSelector((store) => store.connections);
+  const matches = useSelector((store) => store.matches);
   const [isLoading, setIsLoading] = useState(true);
   const [onlineUsers, setOnlineUsers] = useState(new Set());
 
@@ -41,17 +41,17 @@ const Connections = () => {
   }, []);
 
   useEffect(() => {
-    const fetchConnections = async () => {
+    const fetchmatches = async () => {
       try {
-        const res = await api.get("/user/connections");
-        dispatch(setConnections(res.data.data));
+        const res = await api.get("/user/matches");
+        dispatch(setMatches(res.data.data));
       } catch (error) {
-        console.error("Failed to fetch connections", error);
+        console.error("Failed to fetch matches", error);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchConnections();
+    fetchmatches();
   }, [dispatch]);
 
   if (isLoading) {
@@ -92,7 +92,7 @@ const Connections = () => {
           </p>
         </div>
 
-        {!connections || connections.length === 0 ? (
+        {!matches || matches.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
             <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center border border-white/10 shadow-[0_0_30px_rgba(34,211,238,0.1)]">
               <Users className="w-10 h-10 text-[#22d3ee]" />
@@ -109,7 +109,7 @@ const Connections = () => {
             animate="show"
             className="flex flex-col gap-3"
           >
-            {connections.map((conn) => {
+            {matches.map((conn) => {
               const { _id, firstName, lastName, photoUrl, jobTitle } = conn;
               console.log("connn-", conn);
               return (
@@ -143,6 +143,9 @@ const Connections = () => {
                       <p className="text-sm font-medium text-[#22d3ee] truncate">
                         {jobTitle || "Software Engineer"}
                       </p>
+                      <p className="text-xs text-white/60 truncate">
+                        {conn.skills?.slice(0, 2).join(", ")}
+                      </p>
                     </div>
 
                     {/* Action Icon */}
@@ -160,4 +163,4 @@ const Connections = () => {
   );
 };
 
-export default Connections;
+export default Matches;

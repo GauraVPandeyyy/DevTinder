@@ -41,6 +41,17 @@ profileRouter.patch(
     try {
       const loggedInUser = req.user;
 
+      if (req.body["skills[]"]) {
+        req.body.skills = Array.isArray(req.body["skills[]"])
+          ? req.body["skills[]"]
+          : [req.body["skills[]"]];
+      }
+
+      if (req.body.skills) {
+        req.body.skills = req.body.skills
+          .filter((s) => typeof s === "string" && s.trim().length > 0)
+          .map((s) => s.trim());
+      }
       // 🔥 Allowed fields (UPDATED)
       const isAllowedData = [
         "firstName",

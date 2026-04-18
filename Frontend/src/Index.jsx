@@ -39,7 +39,7 @@ const Index = () => {
         </main>
 
         {/* Footer (Now correctly offset alongside the main content) */}
-        <Footer />
+        {/* <Footer /> */}
         
       </div>
     </div>

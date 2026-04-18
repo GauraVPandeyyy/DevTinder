@@ -24,8 +24,8 @@ const Navbar = () => {
 
   const navItems = [
     { icon: Home, label: "Feed", path: "/" },
-    { icon: Users, label: "Requests", path: "/requests" },
-    { icon: MessageSquare, label: "Matches", path: "/connections" },
+    // { icon: Users, label: "Requests", path: "/requests" },
+    { icon: MessageSquare, label: "Matches", path: "/matches" },
     { icon: User, label: "Profile", path: "/profile" },
   ];
 

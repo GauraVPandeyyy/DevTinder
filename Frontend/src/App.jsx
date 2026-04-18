@@ -8,7 +8,7 @@ import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Profile from "./components/Profile";
 import Feed from "./components/Feed";
-import Connections  from "./components/Connections";
+import Matches  from "./components/Matches";
 import {ConnectionRequest} from "./components/ConnectionRequest";
 import Premium from "./components/Premium";
 import Chat from "./components/Chat";
@@ -58,8 +58,8 @@ const App = () => {
             <Route element={<ProtectedRoute />}>
               <Route path="/" element={<Feed />} />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/connections" element={<Connections />} />
-              <Route path="/requests" element={<ConnectionRequest />} />
+              <Route path="/matches" element={<Matches />} />
+              {/* <Route path="/requests" element={<ConnectionRequest />} /> */}
               <Route path="/premium" element={<Premium />} />
               <Route path="/chat/:targetUserId" element={<Chat />} />
               <Route path="/user/:id" element={<ChatUserProfile />} />
