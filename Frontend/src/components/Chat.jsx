@@ -118,8 +118,8 @@ const Chat = () => {
   };
 
   useEffect(() => {
-    fetchLastSeen();
     fetchMessages();
+    fetchLastSeen();
   }, [targetUserId]);
 
   const messagesEndRef = useRef(null);
@@ -189,107 +189,57 @@ const Chat = () => {
     );
   }
 
-  return (
-    <div className="flex flex-col h-[calc(100dvh-5rem)] md:h-[calc(100dvh-2rem)] w-full max-w-3xl mx-auto bg-background relative md:border-x md:border-white/10 shadow-2xl overflow-hidden md:mt-4 md:rounded-t-[2.5rem]">
-      {/* --- STICKY HEADER --- */}
+return (
+    <div className="flex flex-col h-[calc(100dvh-9rem)] md:h-[calc(100dvh-2rem)] w-full max-w-3xl mx-auto bg-background relative md:border-x md:border-white/10 shadow-2xl overflow-hidden md:mt-4 md:rounded-t-[2.5rem]">
+      
+      {/* STICKY HEADER */}
       <div className="sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-background/80 backdrop-blur-xl border-b border-white/5">
-        <div
-          className="flex items-center gap-3 cursor-pointer"
-          onClick={() => navigate(`/user/${chatUser._id}`)}
-        >
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 -ml-2 rounded-full hover:bg-white/10 text-white transition-colors"
-          >
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full hover:bg-white/10 text-white transition-colors">
             <ArrowLeft className="w-6 h-6" />
           </button>
-
-          <div className="relative">
+          <div className="relative cursor-pointer" onClick={() => navigate(`/user/${targetUserId}`)}>
             <Avatar className="w-10 h-10 border border-white/20">
               <AvatarImage src={chatUser?.photoUrl} className="object-cover" />
-              <AvatarFallback className="text-black bg-[#22d3ee] font-bold">
-                {chatUser?.firstName?.charAt(0)}
-              </AvatarFallback>
+              <AvatarFallback className="text-black bg-[#22d3ee] font-bold">{chatUser?.firstName?.charAt(0)}</AvatarFallback>
             </Avatar>
-            {isOnline && (
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-background rounded-full shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
-            )}
+            {isOnline && <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-background rounded-full" />}
           </div>
-
-          <div className="flex flex-col">
-            <h2 className="text-base font-bold text-white leading-tight">
-              {chatUser?.firstName} {chatUser?.lastName}
-            </h2>
+          <div className="flex flex-col cursor-pointer" onClick={() => navigate(`/user/${targetUserId}`)}>
+            <h2 className="text-base font-bold text-white leading-tight">{chatUser?.firstName} {chatUser?.lastName}</h2>
             <span className="text-xs font-medium text-[#22d3ee]">
-              {isTyping ? (
-                <span>Typing...</span>
-              ) : isOnline ? (
-                <span>Online</span>
-              ) : lastSeen ? (
-                <span>Last seen {new Date(lastSeen).toLocaleTimeString()}</span>
-              ) : (
-                <span>Offline</span>
-              )}
+              {isTyping ? "typing..." : isOnline ? "Online" : "Offline"}
             </span>
           </div>
         </div>
-
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-muted-foreground hover:text-[#22d3ee] rounded-full hidden sm:flex"
-          >
-            <Phone className="w-5 h-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-muted-foreground hover:text-[#22d3ee] rounded-full hidden sm:flex"
-          >
-            <Video className="w-5 h-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-muted-foreground hover:text-white rounded-full"
-          >
-            <Info className="w-5 h-5" />
-          </Button>
-        </div>
       </div>
 
-      {/* --- MESSAGE AREA --- */}
-      {/* We added the ref here and removed scroll-smooth */}
-      <div
-        ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar"
-      >
-        {" "}
+      {/* MESSAGE AREA */}
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar flex flex-col">
+        
+        {/* --- NEW: First Time Chat State --- */}
+        {messages.length === 0 && (
+          <div className="flex-1 flex flex-col items-center justify-center text-center p-8 space-y-4 opacity-70">
+             <div className="w-20 h-20 bg-[#22d3ee]/10 rounded-full flex items-center justify-center mb-2 shadow-[0_0_30px_rgba(34,211,238,0.1)]">
+                <Send className="w-10 h-10 text-[#22d3ee] ml-1" />
+             </div>
+             <h3 className="text-2xl font-bold text-white tracking-tight">Say hi!</h3>
+             <p className="text-muted-foreground text-sm max-w-xs">
+               This is the beginning of your conversation with {chatUser?.firstName}. Send a message to get things started.
+             </p>
+          </div>
+        )}
+
         <AnimatePresence initial={false}>
           {messages.map((msg, index) => {
-            // Checks if the message belongs to the logged-in user
-            const isMe =
-              msg.senderId === userId || msg.senderId?._id === userId;
-
+            const isMe = msg.senderId === userId || msg.senderId?._id === userId;
             return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`flex w-full ${isMe ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`flex max-w-[75%] md:max-w-[65%] gap-2 ${isMe ? "flex-row-reverse" : "flex-row"}`}
-                >
-                  {/* Bubble */}
-                  <div
-                    className={`px-4 py-2.5 rounded-2xl text-[15px] leading-relaxed shadow-sm ${
-                      isMe
-                        ? "bg-gradient-to-br from-[#22d3ee] to-[#0284c7] text-white rounded-tr-sm shadow-[0_4px_15px_rgba(34,211,238,0.2)]"
-                        : "bg-white/10 text-white/90 border border-white/5 rounded-tl-sm backdrop-blur-sm"
-                    }`}
-                  >
+              <motion.div key={index} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex w-full ${isMe ? "justify-end" : "justify-start"}`}>
+                <div className={`flex max-w-[75%] md:max-w-[65%] gap-2 ${isMe ? "flex-row-reverse" : "flex-row"}`}>
+                  <div className={`px-4 py-2.5 rounded-2xl text-[15px] leading-relaxed shadow-sm ${
+                      isMe ? "bg-gradient-to-br from-[#22d3ee] to-[#0284c7] text-white rounded-tr-sm shadow-[0_4px_15px_rgba(34,211,238,0.2)]" 
+                           : "bg-white/10 text-white/90 border border-white/5 rounded-tl-sm backdrop-blur-sm"
+                    }`}>
                     <p>{msg.text}</p>
                   </div>
                 </div>
@@ -297,47 +247,25 @@ const Chat = () => {
             );
           })}
         </AnimatePresence>
-        {/* Typing Indicator */}
+
+        {/* --- NEW: Proper Bouncing Typing Indicator --- */}
         {isTyping && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex justify-start"
-          >
-            <div className="bg-white/5 border border-white/5 px-4 py-3 rounded-2xl rounded-tl-sm flex items-center gap-1 w-fit">
-              <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" />
-              <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce delay-75" />
-              <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce delay-150" />
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex justify-start">
+            <div className="bg-white/10 backdrop-blur-sm border border-white/5 px-4 py-3.5 rounded-2xl rounded-tl-sm flex items-center gap-1.5 w-fit">
+              <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} className="w-1.5 h-1.5 bg-[#22d3ee] rounded-full" />
+              <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} className="w-1.5 h-1.5 bg-[#22d3ee] rounded-full" />
+              <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} className="w-1.5 h-1.5 bg-[#22d3ee] rounded-full" />
             </div>
           </motion.div>
         )}
         <div ref={messagesEndRef} className="h-2" />
       </div>
 
-      {/* --- INPUT AREA --- */}
+      {/* INPUT AREA */}
       <div className="p-3 bg-background/90 backdrop-blur-md border-t border-white/5 z-20">
-        <form
-          onSubmit={handleSendMessage}
-          className="flex items-center gap-2 bg-white/5 p-1.5 pl-4 rounded-full border border-white/10 focus-within:border-[#22d3ee]/50 focus-within:shadow-[0_0_15px_rgba(34,211,238,0.1)] transition-all"
-        >
-          <Input
-            type="text"
-            value={newMessage}
-            onChange={handleTyping}
-            placeholder={`Message ${chatUser?.firstName || ""}...`}
-            className="flex-1 border-0 bg-transparent focus-visible:ring-0 shadow-none px-0 h-10 text-white placeholder:text-muted-foreground"
-            autoComplete="off"
-          />
-          <Button
-            type="submit"
-            size="icon"
-            disabled={!newMessage.trim()}
-            className={`rounded-full h-10 w-10 shrink-0 transition-all duration-300 ${
-              newMessage.trim()
-                ? "bg-[#22d3ee] hover:bg-[#22d3ee]/80 text-black shadow-[0_0_15px_rgba(34,211,238,0.4)] scale-100"
-                : "bg-white/10 text-muted-foreground scale-90"
-            }`}
-          >
+        <form onSubmit={handleSendMessage} className="flex items-center gap-2 bg-white/5 p-1.5 pl-4 rounded-full border border-white/10 focus-within:border-[#22d3ee]/50 focus-within:shadow-[0_0_15px_rgba(34,211,238,0.1)] transition-all">
+          <Input type="text" value={newMessage} onChange={handleTyping} placeholder={`Message ${chatUser?.firstName || ""}...`} className="flex-1 border-0 bg-transparent focus-visible:ring-0 shadow-none px-0 h-10 text-white placeholder:text-muted-foreground" autoComplete="off" />
+          <Button type="submit" size="icon" disabled={!newMessage.trim()} className={`rounded-full h-10 w-10 shrink-0 transition-all duration-300 ${newMessage.trim() ? "bg-[#22d3ee] hover:bg-[#22d3ee]/80 text-black shadow-[0_0_15px_rgba(34,211,238,0.4)] scale-100" : "bg-white/10 text-muted-foreground scale-90"}`}>
             <Send className="w-4 h-4 ml-0.5" />
           </Button>
         </form>

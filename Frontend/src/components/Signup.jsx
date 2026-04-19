@@ -35,7 +35,7 @@ const Signup = () => {
         password
       });
       dispatch(setUser(res.data.user || res.data.data));
-      navigate("/");
+      navigate("/profile");
     } catch (err) {
       const errData = err.response?.data;
       if (errData?.errors && Array.isArray(errData.errors)) {

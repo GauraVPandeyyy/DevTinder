@@ -1,97 +1,82 @@
 import { Link } from "react-router-dom";
-import { Sparkles, Github, Twitter, Linkedin, Mail, ComputerIcon } from "lucide-react";
-
+import { Mail, ComputerIcon } from "lucide-react";
+import Logo from "../assets/Logo1.png";
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="w-full border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container max-w-7xl mx-auto px-4 py-12 md:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
-          
+    <footer className="w-full relative bg-[#09090b] pt-12 pb-24 md:pb-12 border-t border-white/5 mt-5">
+      {/* Subtle Top Glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-[#22d3ee]/30 to-transparent" />
+
+      <div className="container max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 lg:gap-16">
           {/* Brand Section */}
-          <div className="col-span-2 space-y-4">
-            <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-80 w-fit">
-              <div className="bg-primary/10 p-1.5 rounded-lg">
-                <ComputerIcon className="w-4 h-4 text-primary" />
+          <div className="md:col-span-2 space-y-5">
+            <Link
+              to="/"
+              className="flex items-center gap-3 transition-opacity hover:opacity-80 w-fit"
+            >
+              <div className="bg-[#22d3ee]/10  rounded-xl border border-[#22d3ee]/20 shadow-[0_0_15px_rgba(34,211,238,0.1)]">
+                <img
+                  src={Logo}
+                  alt="DevTinder Logo"
+                  className="w-10 h-10 rounded-xl"
+                />
               </div>
-              <span className="text-lg font-bold tracking-tight">
-                Dev<span className="text-primary">Tinder</span>
+              <span className="text-2xl font-black tracking-tight text-white">
+                Dev<span className="text-[#22d3ee]">Tinder</span>
               </span>
             </Link>
-            <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
-              The premier networking platform for developers. Find your next coding partner, mentor, or co-founder with a simple swipe. Built with ❤️ by developers, for developers.
+            <p className="text-sm text-muted-foreground max-w-sm leading-relaxed font-light">
+              The premier networking platform for developers. Find your next
+              coding partner, mentor, or co-founder with a simple swipe. Built
+              by developers, for developers.
             </p>
-            <div className="flex items-center gap-4 pt-2">
-              <a href="https://github.com/GauraVPandeyyy/" className="text-muted-foreground hover:text-primary transition-colors">
-                <Github className="w-5 h-5" />
-                <span className="sr-only">GitHub</span>
-              </a>
-              <a href="https://x.com/gaurav_pandeyyy" className="text-muted-foreground hover:text-[#1DA1F2] transition-colors">
-                <Twitter className="w-5 h-5" />
-                <span className="sr-only">Twitter</span>
-              </a>
-              <a href="https://www.linkedin.com/in/gaurav-pandey-0987162a0/" className="text-muted-foreground hover:text-[#0A66C2] transition-colors">
-                <Linkedin className="w-5 h-5" />
-                <span className="sr-only">LinkedIn</span>
-              </a>
-            </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-semibold tracking-wide uppercase text-foreground">
-              Platform
+          {/* Links Section */}
+          <div className="space-y-5 md:col-start-4">
+            <h4 className="text-xs font-bold tracking-widest text-white/50 uppercase">
+              System Operations
             </h4>
-            <ul className="space-y-2.5">
+            <ul className="space-y-3">
               <li>
-                <Link to="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">Explore Feed</Link>
-              </li>
-              <li>
-                <Link to="/premium" className="text-sm text-muted-foreground hover:text-primary transition-colors">Premium Plans</Link>
-              </li>
-              <li>
-                <Link to="/connections" className="text-sm text-muted-foreground hover:text-primary transition-colors">Your Network</Link>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Success Stories</a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Legal & Support */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-semibold tracking-wide uppercase text-foreground">
-              Support
-            </h4>
-            <ul className="space-y-2.5">
-              <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">
-                  <Mail className="w-3.5 h-3.5" />
-                  Contact Us
+                <a
+                  href="mailto:gauravp9118@gmail.com"
+                  className="text-sm font-medium text-muted-foreground hover:text-[#22d3ee] transition-colors flex items-center gap-2"
+                >
+                  <Mail className="w-4 h-4" /> Ping Us
                 </a>
               </li>
               <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Privacy Policy</a>
+                <a
+                  href="#"
+                  className="text-sm font-medium text-muted-foreground hover:text-[#22d3ee] transition-colors"
+                >
+                  Privacy Protocol
+                </a>
               </li>
               <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Terms of Service</a>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">FAQ</a>
+                <a
+                  href="#"
+                  className="text-sm font-medium text-muted-foreground hover:text-[#22d3ee] transition-colors"
+                >
+                  Terms of Runtime
+                </a>
               </li>
             </ul>
           </div>
-
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-muted-foreground text-center md:text-left">
-            © {currentYear} DevTinder Inc. All rights reserved.
+        <div className="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
+          <p className="text-xs text-muted-foreground font-medium">
+            © {currentYear} DevTinder. All rights reserved.
           </p>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span>Status: <span className="text-green-500 font-medium">All systems operational</span></span>
+          <div className="flex items-center gap-2.5 text-xs text-muted-foreground font-medium bg-white/[0.02] px-4 py-2 rounded-full border border-white/5 shadow-inner">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]" />
+            <span>All systems operational</span>
           </div>
         </div>
       </div>

@@ -146,7 +146,7 @@ const EditProfile = ({ user }) => {
                 {formData.firstName || "First"} {formData.lastName || " "}
               </h2>
               <span className="text-xl font-medium text-white/70 pb-[2px]">
-                {formData.age || "25"}
+                {formData.age || " "}
               </span>
             </div>
             <div className="flex items-center gap-2 text-xs text-[#22d3ee] mb-3 font-medium">
