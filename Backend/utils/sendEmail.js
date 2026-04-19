@@ -23,7 +23,7 @@ const sendEmail = async () => {
 
   try {
   const response = await sesClient.send(command);
-  console.log("Email sent:", response);
+ // console.log("Email sent:", response);
   return response; // ✅ ADD THIS
 } catch (error) {
   console.error("Error sending email:", error);

@@ -25,12 +25,12 @@ cronJob.schedule("0 8 * * *", async () => {
       ...new Set(pendingRequests.map((req) => req.toUserId.email)),
     ];
 
-    console.log(listEmails);
+    //console.log(listEmails);
 
     for (const email of listEmails) {
       try {
         const res = await sendEmail();
-        console.log(res);
+        //console.log(res);
       } catch (error) {
         throw new Error(error.message);
       }

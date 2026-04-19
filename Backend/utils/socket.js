@@ -23,7 +23,7 @@ const initSocket = (server) => {
     //handle events
     socket.on("joinChat", ({ userId, targetUserId, firstName }) => {
       const roomId = getSecretRoomId(userId, targetUserId);
-      console.log(firstName + " - " + roomId);
+      //console.log(firstName + " - " + roomId);
       socket.join(roomId);
 
       // ===== ONLINE LOGIC START =====
@@ -56,7 +56,7 @@ const initSocket = (server) => {
     });
 
     socket.on("disconnect", async () => {
-      console.log("Socket disconnected:", socket.id);
+      //console.log("Socket disconnected:", socket.id);
 
       for (let [userId, socketSet] of onlineUsers.entries()) {
         if (socketSet.has(socket.id)) {
@@ -89,7 +89,7 @@ const initSocket = (server) => {
         try {
           const roomId = getSecretRoomId(userId, targetUserId);
 
-          console.log(firstName + " - " + text);
+          //console.log(firstName + " - " + text);
 
           let chat = await Chat.findOne({
             participants: { $all: [userId, targetUserId] },
@@ -123,7 +123,7 @@ const initSocket = (server) => {
     socket.on("typing", ({ userId, targetUserId }) => {
       const roomId = getSecretRoomId(userId, targetUserId);
 
-      console.log("Starts typing...");
+      //console.log("Starts typing...");
 
       // send to OTHER user only
       socket.to(roomId).emit("userTyping");
@@ -132,7 +132,7 @@ const initSocket = (server) => {
     socket.on("stopTyping", ({ userId, targetUserId }) => {
       const roomId = getSecretRoomId(userId, targetUserId);
 
-      console.log("stopped typing");
+      //console.log("stopped typing");
 
       socket.to(roomId).emit("userStoppedTyping");
     });

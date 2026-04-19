@@ -89,7 +89,7 @@ const Chat = () => {
     try {
       const response = await api.get(`/chat/${targetUserId}`);
       const chat = response.data;
-      console.log(chat);
+      //console.log(chat);
 
       //  set chat user
       const otherUser = chat.participants.find((p) => p._id !== userId);
