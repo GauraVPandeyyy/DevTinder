@@ -56,7 +56,7 @@ const Premium = () => {
         key: "rzp_test_SUfpOzxh2SY7AN",
         amount,
         currency: "INR",
-        name: "DevTinder",
+        name: "DevMatch",
         description: "Upgrade to premium",
         order_id: orderId,
         handler: async function (response) {

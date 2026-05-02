@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Mail, ComputerIcon } from "lucide-react";
-import Logo from "../assets/Logo1.png";
+import Logo from "../assets/logo2.png";
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
@@ -20,12 +20,12 @@ const Footer = () => {
               <div className="bg-[#22d3ee]/10  rounded-xl border border-[#22d3ee]/20 shadow-[0_0_15px_rgba(34,211,238,0.1)]">
                 <img
                   src={Logo}
-                  alt="DevTinder Logo"
+                  alt="DevMatch Logo"
                   className="w-10 h-10 rounded-xl"
                 />
               </div>
               <span className="text-2xl font-black tracking-tight text-white">
-                Dev<span className="text-[#22d3ee]">Tinder</span>
+                Dev<span className="text-[#22d3ee]">Match</span>
               </span>
             </Link>
             <p className="text-sm text-muted-foreground max-w-sm leading-relaxed font-light">
@@ -72,7 +72,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
           <p className="text-xs text-muted-foreground font-medium">
-            © {currentYear} DevTinder. All rights reserved.
+            © {currentYear} DevMatch. All rights reserved.
           </p>
           <div className="flex items-center gap-2.5 text-xs text-muted-foreground font-medium bg-white/[0.02] px-4 py-2 rounded-full border border-white/5 shadow-inner">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]" />

@@ -18,7 +18,7 @@ const Profile = () => {
         <div className="text-center md:text-left md:px-4">
           <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white mb-2">Your Profile</h1>
           <p className="text-muted-foreground text-sm md:text-base">
-            Manage how you appear to other developers on DevTinder.
+            Manage how you appear to other developers on DevMatch.
           </p>
         </div>
         

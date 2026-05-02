@@ -40,8 +40,8 @@ const userSchema = new mongoose.Schema(
 
     age: {
       type: Number,
-      min: 18,
-      max: 100,
+      min: [18, "Age must be at least 18"],
+      max: [100, "Age cannot exceed 100"],
     },
     lastSeen: {
       type: Date,
@@ -60,12 +60,12 @@ const userSchema = new mongoose.Schema(
 
     about: {
       type: String,
-      maxlength: 500,
-      default: "There is nothing about this person",
+      maxlength: [500, "About section cannot exceed 500 characters"],
+      default: "Hello World! I'm passionate about coding and always eager to learn new technologies and build cool stuff.",
     },
     jobTitle: {
       type: String,
-      default: "",
+      default: "Software Engineer",
       trim: true,
     },
     skills: {

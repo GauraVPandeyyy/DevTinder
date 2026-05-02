@@ -12,8 +12,8 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["logo.png"],
       manifest: {
-        name: "DevTinder",
-        short_name: "DevTinder",
+        name: "DevMatch",
+        short_name: "DevMatch",
         description: "Developer networking platform",
         theme_color: "#09090b",
         background_color: "#09090b",

@@ -11,7 +11,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { removeUser } from "@/store/userSlice";
 import api from "@/services/api";
-import Logo from "../assets/Logo1.png";
+import Logo from "../assets/logo2.png";
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -46,12 +46,12 @@ const Navbar = () => {
           {/* <ComputerIcon className="w-6 h-6 text-[#22d3ee]" /> */}
           <img
             src={Logo}
-            alt="DevTinder Logo"
+            alt="DevMatch Logo"
             className="w-10 h-10 rounded-xl"
           />
 
           <span className="font-bold text-lg text-white">
-            Dev<span className="text-[#22d3ee]">Tinder</span>
+            Dev<span className="text-[#22d3ee]">Match</span>
           </span>
         </Link>
         <div className="flex items-center gap-4">
@@ -75,12 +75,12 @@ const Navbar = () => {
           <div className="bg-[#22d3ee]/10  rounded-xl border border-[#22d3ee]/20 shadow-[0_0_15px_rgba(34,211,238,0.1)]">
             <img
               src={Logo}
-              alt="DevTinder Logo"
+              alt="DevMatch Logo"
               className="w-10 h-10 rounded-xl"
             />
           </div>
           <span className="text-2xl font-black tracking-tight text-white hidden lg:block">
-            Dev<span className="text-[#22d3ee]">Tinder</span>
+            Dev<span className="text-[#22d3ee]">Match</span>
           </span>
         </div>
 

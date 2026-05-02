@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { motion } from "framer-motion";
-import { Loader2, Briefcase, Image as ImageIcon, Sparkles } from "lucide-react";
+import { Loader2, Briefcase, Sparkles, Lock, Eye, EyeOff } from "lucide-react";
 import api from "@/services/api";
 import toast from "react-hot-toast";
 import { setUser } from "@/store/userSlice";
@@ -19,22 +18,43 @@ import {
 } from "@/components/ui/select";
 
 const allSkills = [
-  "React",
+   "React",
   "Next.js",
+  "Tailwind CSS",
+  "HTML",
+  "CSS",
+
+  // Backend
   "Node.js",
-  "Express",
+  "Express.js",
+
+  // Databases
   "MongoDB",
-  "Tailwind",
+  "Mongoose",
+  "SQL",
+  "PostgreSQL",
+  "Redis",
+
+  // Languages
   "JavaScript",
   "TypeScript",
   "Python",
   "C++",
   "Java",
+
+  // DevOps & Tools
+  "Git",
+  "GitHub",
+  "Docker",
+  "CI/CD",
+  "Nginx",
+  "Linux",
 ];
 
 const EditProfile = ({ user }) => {
   const dispatch = useDispatch();
 
+  // --- PROFILE UPDATE STATE ---
   const [formData, setFormData] = useState({
     firstName: user?.firstName || "",
     lastName: user?.lastName || "",
@@ -43,21 +63,32 @@ const EditProfile = ({ user }) => {
     about: user?.about || "",
     jobTitle: user?.jobTitle || "",
     skills: user?.skills || [],
-    profileImage: null, // Actual file object send karne ke liye
+    profileImage: null,
   });
 
   const [previewImage, setPreviewImage] = useState(user?.photoUrl || "");
   const [isLoading, setIsLoading] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState({}); // Field-level errors store karne ke liye
+  const [fieldErrors, setFieldErrors] = useState({});
 
+  // --- PASSWORD UPDATE STATE ---
+  const [passwordData, setPasswordData] = useState({
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // --- PROFILE UPDATE HANDLER ---
   const handleSave = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setFieldErrors({}); // Reset old errors
+    setFieldErrors({});
 
     try {
       if (formData.skills.length < 2) {
         toast.error("Add at least 2 skills");
+        setIsLoading(false);
         return;
       }
       const form = new FormData();
@@ -77,13 +108,11 @@ const EditProfile = ({ user }) => {
       toast.success("Profile updated successfully! ✨");
     } catch (error) {
       const errData = error.response?.data;
-
-      // Handle array of errors based on your JSON format
       if (errData?.errors && Array.isArray(errData.errors)) {
         const newErrors = {};
         errData.errors.forEach((err) => {
           if (err.path.startsWith("skills")) {
-            newErrors.skills = err.msg; // 👈 normalize
+            newErrors.skills = err.msg;
           } else {
             newErrors[err.path] = err.msg;
           }
@@ -91,7 +120,6 @@ const EditProfile = ({ user }) => {
         setFieldErrors(newErrors);
         toast.error("Please fix the errors highlighted below.");
       } else {
-        // Fallback for general errors
         toast.error(errData?.message || "Failed to update profile");
       }
       console.error(error);
@@ -102,7 +130,6 @@ const EditProfile = ({ user }) => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    // Remove error when user starts typing
     if (fieldErrors[e.target.name]) {
       setFieldErrors({ ...fieldErrors, [e.target.name]: null });
     }
@@ -116,18 +143,55 @@ const EditProfile = ({ user }) => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData({ ...formData, profileImage: file }); // API ke liye file store kar rahe hain
-      setPreviewImage(URL.createObjectURL(file)); // Live preview ke liye local URL
+      setFormData({ ...formData, profileImage: file });
+      setPreviewImage(URL.createObjectURL(file));
+    }
+  };
+
+  // --- PASSWORD UPDATE HANDLER ---
+  const handlePasswordUpdate = async (e) => {
+    e.preventDefault();
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      return toast.error("Passwords do not match! ❌");
+    }
+
+    if (passwordData.newPassword.length < 8) {
+      return toast.error("Password must be at least 8 characters long.");
+    }
+
+    setIsPasswordLoading(true);
+    try {
+      // API call to the backend route you provided[cite: 13]
+      await api.patch("/updatePassword", {
+        password: passwordData.newPassword,
+      });
+      toast.success("Password Updated successfully! 🔐");
+
+      // Clear the inputs after success
+      setPasswordData({ newPassword: "", confirmPassword: "" });
+    } catch (error) {
+      const errData = error.response?.data;
+      if (errData?.errors && Array.isArray(errData.errors)) {
+        toast.error(errData.errors[0].msg);
+      } else {
+        toast.error(errData?.message || "Failed to update password");
+      }
+    } finally {
+      setIsPasswordLoading(false);
     }
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
-      {/* --- LEFT: LIVE PREVIEW CARD --- */}
-      <div className="lg:col-span-5 lg:sticky lg:top-24 flex flex-col items-center">
-        <h3 className="text-sm font-semibold text-[#22d3ee] uppercase tracking-widest mb-4 flex items-center gap-2">
-          <Sparkles className="w-4 h-4" /> Live Preview
-        </h3>
+   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
+
+  {/* --- LEFT: LIVE PREVIEW CARD --- */}
+  {/* Card wrapper par directly sticky apply karo */}
+  <div className="lg:col-span-5 lg:sticky lg:top-24 flex flex-col items-center">
+    
+    <h3 className="text-sm font-semibold text-[#22d3ee] uppercase tracking-widest mb-4 flex items-center gap-2">
+      <Sparkles className="w-4 h-4" /> Live Preview
+    </h3>
 
         <div className="relative w-full max-w-[320px] aspect-[3/4] overflow-hidden rounded-[2rem] bg-black shadow-[0_10px_40px_rgba(34,211,238,0.1)] border-[0.5px] border-white/10">
           <img
@@ -162,8 +226,9 @@ const EditProfile = ({ user }) => {
         </div>
       </div>
 
-      {/* --- RIGHT: SETTINGS FORM --- */}
-      <div className="lg:col-span-7">
+      {/* --- RIGHT: SETTINGS SECTIONS --- */}
+      <div className="lg:col-span-7 flex flex-col gap-8">
+        {/* PROFILE FORM */}
         <form
           onSubmit={handleSave}
           className="space-y-6 bg-white/[0.02] border border-white/5 p-6 md:p-8 rounded-[2rem] shadow-2xl backdrop-blur-sm"
@@ -260,7 +325,7 @@ const EditProfile = ({ user }) => {
                   value={formData.gender}
                 >
                   <SelectTrigger
-                    className={`bg-black/40 text-white rounded-xl h-12 transition-all ${
+                    className={`bg-black/40 text-white rounded-xl h-12 transition-all pl-2 py-5.5 ${
                       fieldErrors.gender
                         ? "border-red-500 ring-1 ring-red-500"
                         : "border-white/10 focus:ring-1 focus:ring-[#22d3ee]"
@@ -268,7 +333,7 @@ const EditProfile = ({ user }) => {
                   >
                     <SelectValue placeholder="Select Gender" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#09090b] border-white/10 text-white">
+                  <SelectContent className="bg-[#09090b] border-white/10 text-white pl-2 space-y-2 py-2">
                     <SelectItem value="male">Male</SelectItem>
                     <SelectItem value="female">Female</SelectItem>
                     <SelectItem value="others">Other</SelectItem>
@@ -302,11 +367,6 @@ const EditProfile = ({ user }) => {
                     : "border-white/10 focus-visible:ring-[#22d3ee]"
                 }`}
               />
-              {fieldErrors.jobTitle && (
-                <p className="text-xs text-red-500 font-medium">
-                  {fieldErrors.jobTitle}
-                </p>
-              )}
             </div>
 
             <div className="space-y-2">
@@ -322,11 +382,6 @@ const EditProfile = ({ user }) => {
                     : "border-white/10 focus-visible:ring-[#22d3ee]"
                 }`}
               />
-              {fieldErrors.about && (
-                <p className="text-xs text-red-500 font-medium">
-                  {fieldErrors.about}
-                </p>
-              )}
             </div>
 
             <div className="space-y-4 pt-4">
@@ -334,12 +389,11 @@ const EditProfile = ({ user }) => {
                 Skills
               </h3>
 
-              {/* Selected Skills */}
               <div className="flex flex-wrap gap-2">
                 {formData.skills.map((skill, index) => (
                   <span
                     key={index}
-                    className="px-3 py-1 bg-[#22d3ee]/20 text-[#22d3ee] rounded-full text-sm flex items-center gap-2"
+                    className="px-3 py-1 bg-[#22d3ee]/20 text-[#fdfdfd] rounded-full text-sm flex items-center gap-2"
                   >
                     {skill}
                     <button
@@ -356,17 +410,10 @@ const EditProfile = ({ user }) => {
                   </span>
                 ))}
               </div>
-              {fieldErrors.skills && (
-                <p className="text-sm text-red-500 font-medium">
-                  {fieldErrors.skills}
-                </p>
-              )}
 
-              {/* Dropdown */}
-              <select
-                className="w-full bg-black/40 text-white p-3 rounded-xl"
-                onChange={(e) => {
-                  const value = e.target.value;
+              {/* --- Modern Skills Dropdown --- */}
+              <Select
+                onValueChange={(value) => {
                   if (value && !formData.skills.includes(value)) {
                     setFormData({
                       ...formData,
@@ -375,23 +422,31 @@ const EditProfile = ({ user }) => {
                   }
                 }}
               >
-                <option value="">Select Skill</option>
-                {allSkills.map((skill) => (
-                  <option key={skill} value={skill}>
-                    {skill}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full bg-black/40 text-white rounded-xl h-12 border-white/10 focus:ring-1 focus:ring-[#22d3ee] pl-3 py-5.5">
+                  <SelectValue placeholder="Select Skill to Add" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#09090b] border-white/10 text-white max-h-60 custom-scrollbar p-3">
+                  {allSkills.map((skill) => (
+                    <SelectItem 
+                      key={skill} 
+                      value={skill}
+                      disabled={formData.skills.includes(skill)}
+                      className="hover:bg-white/10 focus:bg-[#22d3ee]/20 focus:text-[#22d3ee] cursor-pointer"
+                    >
+                      {skill}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-              {/* Custom Skill */}
               <input
                 type="text"
-                placeholder="Add custom skill"
-                className="w-full bg-black/40 text-white p-3 rounded-xl"
+                placeholder="Add custom skill (Press Enter)"
+                className="w-full bg-black/40 text-white p-3 rounded-xl border border-white/10"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
-                    const value = e.target.value.trim().toLowerCase();
+                    const value = e.target.value.trim();
                     if (value && !formData.skills.includes(value)) {
                       setFormData({
                         ...formData,
@@ -405,12 +460,11 @@ const EditProfile = ({ user }) => {
             </div>
           </div>
 
-          {/* Static Save Button (No longer floating) */}
           <div className="mt-8 pt-4">
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-14 text-lg font-bold rounded-2xl bg-gradient-to-r from-[#22d3ee] to-[#0284c7] text-white shadow-[0_10px_30px_rgba(34,211,238,0.2)] hover:shadow-[0_10px_40px_rgba(34,211,238,0.4)] hover:scale-[1.01] transition-all"
+              className="w-full h-14 text-lg font-bold rounded-2xl bg-gradient-to-r from-[#22d3ee] to-[#0284c7] text-white shadow-[0_10px_30px_rgba(34,211,238,0.2)] hover:shadow-[0_10px_40px_rgba(34,211,238,0.4)] transition-all"
             >
               {isLoading ? (
                 <Loader2 className="w-6 h-6 animate-spin" />
@@ -419,6 +473,95 @@ const EditProfile = ({ user }) => {
               )}
             </Button>
           </div>
+        </form>
+
+        {/* --- SECURITY / PASSWORD FORM (NEW) --- */}
+        <form
+          onSubmit={handlePasswordUpdate}
+          className="space-y-6 bg-white/[0.02] border border-white/5 p-6 md:p-8 rounded-[2rem] shadow-2xl backdrop-blur-sm"
+        >
+          <h3 className="text-xl font-bold text-white border-b border-white/10 pb-2 flex items-center gap-2">
+            <Lock className="w-5 h-5 text-[#22d3ee]" /> Security Settings
+          </h3>
+
+          <div className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <Label className="text-white/70">New Password</Label>
+              <div className="relative">
+                <Input
+                  type={showNewPassword ? "text" : "password"}
+                  value={passwordData.newPassword}
+                  onChange={(e) =>
+                    setPasswordData({
+                      ...passwordData,
+                      newPassword: e.target.value,
+                    })
+                  }
+                  placeholder="••••••••"
+                  className="pr-11 bg-black/40 text-white rounded-xl h-12 border-white/10 focus-visible:ring-[#22d3ee]"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-muted-foreground hover:text-white transition-colors"
+                >
+                  {showNewPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-white/70">Confirm New Password</Label>
+              <div className="relative">
+                <Input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={passwordData.confirmPassword}
+                  onChange={(e) =>
+                    setPasswordData({
+                      ...passwordData,
+                      confirmPassword: e.target.value,
+                    })
+                  }
+                  placeholder="••••••••"
+                  className="pr-11 bg-black/40 text-white rounded-xl h-12 border-white/10 focus-visible:ring-[#22d3ee]"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-muted-foreground hover:text-white transition-colors"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <Button
+            type="submit"
+            variant="outline"
+            disabled={
+              isPasswordLoading ||
+              !passwordData.newPassword ||
+              !passwordData.confirmPassword
+            }
+            className="w-full h-14 mt-4 text-lg font-bold rounded-2xl border-[#22d3ee]/30 text-[#22d3ee] hover:bg-[#22d3ee] hover:text-black transition-all"
+          >
+            {isPasswordLoading ? (
+              <Loader2 className="w-6 h-6 animate-spin" />
+            ) : (
+              "Update Password"
+            )}
+          </Button>
         </form>
       </div>
     </div>
