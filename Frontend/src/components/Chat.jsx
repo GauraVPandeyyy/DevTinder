@@ -86,35 +86,38 @@ const Chat = () => {
     };
   }, [userId, targetUserId]);
 
- const fetchMessages = async () => {
+const fetchChatData = async () => {
     try {
-      // 1. API Call start karne se pehle loading true
-      setIsChatLoading(true); 
-      
-      const response = await api.get(`/chat/${targetUserId}`);
-      const chat = response.data;
+      setIsChatLoading(true);
 
-      // 2. Set chat user (The crucial part that was causing the blank screen)
-      if (chat && chat.participants) {
-        const otherUser = chat.participants.find((p) => p._id !== userId);
-        setChatUser(otherUser);
-      }
+      // 1. BULLETPROOF: Pehle strictly target user ki details fetch karo (Direct User API Se)
+      const userRes = await api.get(`/user/${targetUserId}`);
+      setChatUser(userRes.data.user);
 
-      // 3. Set messages
-      if (chat && chat.messages) {
-        let chatMessages = chat.messages.map((msg) => ({
-          firstName: msg.senderId.firstName,
-          senderId: msg.senderId._id,
-          text: msg.text,
-        }));
-        setMessages(chatMessages);
+      // 2. Uske baad messages fetch karo
+      try {
+        const chatRes = await api.get(`/chat/${targetUserId}`);
+        const chat = chatRes.data;
+
+        if (chat && chat.messages) {
+          let chatMessages = chat.messages.map((msg) => ({
+            // Fallback safety in case sender is not populated
+            firstName: msg.senderId?.firstName || "User", 
+            senderId: msg.senderId?._id || msg.senderId,
+            text: msg.text,
+          }));
+          setMessages(chatMessages);
+        }
+      } catch (chatError) {
+        // Agar naya match hai aur backend error de (kyunki koi message nahi hai),
+        // toh crash na ho, bas messages empty set kar do.
+        setMessages([]);
       }
 
     } catch (error) {
-      console.error("Failed to fetch messages:", error);
+      console.error("Failed to load chat data:", error);
     } finally {
-      // 4. API Call khatam hone par loading false zaroor karna hai
-      setIsChatLoading(false); 
+      setIsChatLoading(false);
     }
   };
 
@@ -127,9 +130,11 @@ const Chat = () => {
     }
   };
 
-  useEffect(() => {
-    fetchMessages();
-    fetchLastSeen();
+useEffect(() => {
+    if (targetUserId) {
+      fetchChatData();
+      fetchLastSeen();
+    }
   }, [targetUserId]);
 
   const messagesEndRef = useRef(null);
