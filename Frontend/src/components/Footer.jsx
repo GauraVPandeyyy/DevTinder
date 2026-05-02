@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Mail, ComputerIcon } from "lucide-react";
-import Logo from "../assets/logo2.png";
+import Logo from "../assets/logo.png";
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 

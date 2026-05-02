@@ -2,13 +2,13 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { motion } from "framer-motion";
-import { Loader2, Mail, Lock, User, Eye, EyeOff, ComputerIcon } from "lucide-react";
+import { Loader2, Mail, Lock, User, Eye, EyeOff, ComputerIcon, Info } from "lucide-react";
 import api from "@/services/api";
 import { setUser } from "@/store/userSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Logo from "../assets/logo2.png";
+import Logo from "../assets/logo.png";
 
 const Signup = () => {
   const [firstName, setFirstName] = useState("");
@@ -151,6 +151,12 @@ const Signup = () => {
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
+              {/* 👇 YAHAN SE NAYI LINE ADD KARNI HAI 👇 */}
+              <p className="text-[12px] text-white/50 ml-1 flex items-start gap-1.5 mt-1.5 leading-relaxed font-medium">
+                <Info className="w-3.5 h-3.5 shrink-0 mt-[2px] text-[#22d3ee]" />
+                Must be 8+ characters, mixing upper/lowercase, numbers, and symbols.
+              </p>
+              {/* 👆 YAHAN TAK 👆 */}
             </div>
 
             {error && (

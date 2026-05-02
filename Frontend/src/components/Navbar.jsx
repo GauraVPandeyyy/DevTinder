@@ -11,7 +11,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { removeUser } from "@/store/userSlice";
 import api from "@/services/api";
-import Logo from "../assets/logo2.png";
+import Logo from "../assets/logo.png";
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();

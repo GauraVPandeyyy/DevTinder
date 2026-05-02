@@ -9,7 +9,7 @@ import { setUser } from "@/store/userSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Logo from "../assets/logo2.png";
+import Logo from "../assets/logo.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");
