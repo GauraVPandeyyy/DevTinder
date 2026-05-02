@@ -29,6 +29,7 @@ const Chat = () => {
   const currentUser = useSelector((state) =>
     state.connections?.find((conn) => conn._id === targetUserId),
   );
+  const [isChatLoading, setIsChatLoading] = useState(true);
 
   const user = useSelector((store) => store.user);
   const userId = user?._id;
@@ -85,26 +86,35 @@ const Chat = () => {
     };
   }, [userId, targetUserId]);
 
-  const fetchMessages = async () => {
+ const fetchMessages = async () => {
     try {
+      // 1. API Call start karne se pehle loading true
+      setIsChatLoading(true); 
+      
       const response = await api.get(`/chat/${targetUserId}`);
       const chat = response.data;
-      //console.log(chat);
 
-      //  set chat user
-      const otherUser = chat.participants.find((p) => p._id !== userId);
-      setChatUser(otherUser);
+      // 2. Set chat user (The crucial part that was causing the blank screen)
+      if (chat && chat.participants) {
+        const otherUser = chat.participants.find((p) => p._id !== userId);
+        setChatUser(otherUser);
+      }
 
-      // messages
-      let chatMessages = chat.messages.map((msg) => ({
-        firstName: msg.senderId.firstName,
-        senderId: msg.senderId._id,
-        text: msg.text,
-      }));
+      // 3. Set messages
+      if (chat && chat.messages) {
+        let chatMessages = chat.messages.map((msg) => ({
+          firstName: msg.senderId.firstName,
+          senderId: msg.senderId._id,
+          text: msg.text,
+        }));
+        setMessages(chatMessages);
+      }
 
-      setMessages(chatMessages);
     } catch (error) {
       console.error("Failed to fetch messages:", error);
+    } finally {
+      // 4. API Call khatam hone par loading false zaroor karna hai
+      setIsChatLoading(false); 
     }
   };
 
@@ -176,18 +186,28 @@ const Chat = () => {
     setNewMessage("");
   };
 
-  if (!chatUser) {
+  if (isChatLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-[70vh] space-y-4">
-        <p className="text-xl font-medium text-muted-foreground">
-          Loading chat...
+      <div className="flex flex-col items-center justify-center h-[calc(100dvh-5rem)] space-y-4 bg-background">
+        <div className="w-12 h-12 border-4 border-[#22d3ee]/20 border-t-[#22d3ee] rounded-full animate-spin"></div>
+        <p className="text-sm font-medium text-muted-foreground animate-pulse">
+          Connecting to terminal...
         </p>
-        {/* <Button onClick={() => navigate("/connections")} variant="outline">
-          Back to Connections
-        </Button> */}
       </div>
     );
   }
+
+  if (!chatUser && !isChatLoading) {
+    return (
+       <div className="flex flex-col items-center justify-center h-[70vh] space-y-4">
+        <p className="text-xl font-medium text-muted-foreground">
+          User data not found.
+        </p>
+      </div>
+    )
+  }
+
+
 
 return (
     <div className="flex flex-col h-[calc(100dvh-9rem)] md:h-[calc(100dvh-2rem)] w-full max-w-3xl mx-auto bg-background relative md:border-x md:border-white/10 shadow-2xl overflow-hidden md:mt-4 md:rounded-t-[2.5rem]">

@@ -8,6 +8,7 @@ import { setUser } from "@/store/userSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Logo from "../assets/logo2.png";
 
 const Signup = () => {
   const [firstName, setFirstName] = useState("");
@@ -63,9 +64,12 @@ const Signup = () => {
       >
         {/* Brand Header */}
         <div className="flex flex-col items-center mb-8">
-          <div className="bg-[#22d3ee]/10 p-4 rounded-2xl border border-[#22d3ee]/20 mb-4 shadow-[0_0_30px_rgba(34,211,238,0.15)]">
-            <ComputerIcon className="w-10 h-10 text-[#22d3ee]" />
-          </div>
+          <div className="bg-[#22d3ee]/10 p-0 rounded-2xl border border-[#22d3ee]/20 mb-4 shadow-[0_0_30px_rgba(34,211,238,0.15)]">
+<img
+                        src={Logo}
+                        alt="DevMatch Logo"
+                        className="w-15 h-15 rounded-2xl"
+                      />          </div>
           <h1 className="text-4xl font-black tracking-tight text-white mb-2">
             Initialize <span className="text-[#22d3ee]">Profile</span>
           </h1>

@@ -9,6 +9,7 @@ import { setUser } from "@/store/userSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Logo from "../assets/logo2.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -57,11 +58,15 @@ const Login = () => {
       >
         {/* Brand Header */}
         <div className="flex flex-col items-center mb-8">
-          <div className="bg-[#22d3ee]/10 p-4 rounded-2xl border border-[#22d3ee]/20 mb-4 shadow-[0_0_30px_rgba(34,211,238,0.15)]">
-            <ComputerIcon className="w-10 h-10 text-[#22d3ee]" />
+          <div className="bg-[#22d3ee]/10 p-0 rounded-2xl border border-[#22d3ee]/20 mb-4 shadow-[0_0_30px_rgba(34,211,238,0.15)]">
+            <img
+                        src={Logo}
+                        alt="DevMatch Logo"
+                        className="w-15 h-15 rounded-2xl"
+                      />
           </div>
           <h1 className="text-4xl font-black tracking-tight text-white mb-2">
-            Dev<span className="text-[#22d3ee]">Tinder</span>
+            Dev<span className="text-[#22d3ee]">Match</span>
           </h1>
           <p className="text-muted-foreground font-medium text-center">
             Sign in to continue your developer journey.
