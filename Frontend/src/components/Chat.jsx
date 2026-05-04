@@ -109,8 +109,6 @@ const fetchChatData = async () => {
           setMessages(chatMessages);
         }
       } catch (chatError) {
-        // Agar naya match hai aur backend error de (kyunki koi message nahi hai),
-        // toh crash na ho, bas messages empty set kar do.
         setMessages([]);
       }
 
@@ -139,10 +137,8 @@ useEffect(() => {
 
   const messagesEndRef = useRef(null);
 
-  // Auto-scroll to bottom when new messages arrive
   const scrollToBottom = () => {
     if (scrollContainerRef.current) {
-      // This strictly targets the inner chat box so the page doesn't jump
       scrollContainerRef.current.scrollTo({
         top: scrollContainerRef.current.scrollHeight,
         behavior: "smooth",
